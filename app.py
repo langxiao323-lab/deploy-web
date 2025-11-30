@@ -9,7 +9,7 @@ print()
 
 ORACLE_USER = "s2835812"
 ORACLE_PASSWORD = "252525"
-ORACLE_DSN = "oracle.geos.ed.ac.uk:1521/ORCL"
+ORACLE_DSN = "GEOSLEARN"
 
 conn = cx_Oracle.connect(
     user=ORACLE_USER,

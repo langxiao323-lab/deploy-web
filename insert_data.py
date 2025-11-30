@@ -5,7 +5,7 @@ import cx_Oracle
 
 ORACLE_USER = "s2835812"
 ORACLE_PASSWORD = "252525"
-ORACLE_DSN = "oracle.geos.ed.ac.uk:1521/ORCL"
+ORACLE_DSN = "GEOSLEARN"
 
 EDINBURGH_CENTER = {"lat": 55.9533, "lng": -3.1883}
 
@@ -22,7 +22,7 @@ def generate_coordinates(index: int, total: int):
 
 def main():
     # 1) 读取 Lidarr.json（注意：路径相对于仓库根目录）
-    with open("server/Lidarr.json", "r", encoding="utf-8") as f:
+    with open("Lidarr.json", "r", encoding="utf-8") as f:
         raw = json.load(f)
 
     rows = [g for g in raw if "Cemetery" in g and g["Cemetery"]]
