@@ -1,98 +1,77 @@
 import oracledb
 from flask import Flask, jsonify
+import sys
 
+# 数据库配置
 ORACLE_USER = "s2835812"
 ORACLE_PASSWORD = "252525"
-ORACLE_DSN = "oracle.geos.ed.ac.uk:1521/ORCL"
+ORACLE_DSN = "172.16.108.21:1842/GLRNLIVE_PRMY.is.ed.ac.uk"
 
 app = Flask(__name__)
 
 def fetch_graveyards():
-    conn = oracledb.connect(
-        user=ORACLE_USER,
-        password=ORACLE_PASSWORD,
-        dsn=ORACLE_DSN,
-    )
+    conn = None
     try:
+        conn = oracledb.connect(
+            user=ORACLE_USER,
+            password=ORACLE_PASSWORD,
+            dsn=ORACLE_DSN,
+        )
         cur = conn.cursor()
+        
         cur.execute(
             """
             SELECT 
-                id,
-                name,
-                latitude,
-                longitude,
-                area_hectares,
-                ndvi_mean,
-                carbon_total_tonnes,
-                carbon_per_hectare,
-                edi_norm,
-                simd_rank,
-                simd_decile
+                name, latitude, longitude, area_hectares, 
+                ndvi_mean, carbon_total_tonnes, carbon_per_hectare, 
+                edi_norm, simd_rank, simd_decile
             FROM graveyards
-            ORDER BY id
             """
         )
-
-        rows = []
-        for (
-            gid,
-            name,
-            lat,
-            lng,
-            area_ha,
-            ndvi_mean,
-            carbon_total,
-            carbon_per_ha,
-            edi_norm,
-            simd_rank,
-            simd_decile,
-        ) in cur:
-            rows.append(
-                {
-                    "id": gid,
-                    "name": name,
-                    "latitude": float(lat) if lat is not None else None,
-                    "longitude": float(lng) if lng is not None else None,
-                    "areaHectares": float(area_ha) if area_ha is not None else None,
-                    "ndvi": {
-                        "meanNdvi": float(ndvi_mean) if ndvi_mean is not None else None,
-                    }
-                    if ndvi_mean is not None
-                    else None,
-                    "carbon": {
-                        "totalCarbonTonnes": float(carbon_total)
-                        if carbon_total is not None
-                        else None,
-                        "carbonPerHectare": float(carbon_per_ha)
-                        if carbon_per_ha is not None
-                        else None,
-                    }
-                    if carbon_total is not None or carbon_per_ha is not None
-                    else None,
-                    "deprivation": {
-                        "ediScore": float(edi_norm) if edi_norm is not None else None,
-                        "simdRank": int(simd_rank) if simd_rank is not None else None,
-                        "simdQuintile": int(simd_decile)
-                        if simd_decile is not None
-                        else None,
-                    }
-                    if edi_norm is not None
-                    or simd_rank is not None
-                    or simd_decile is not None
-                    else None,
+        
+        # 将查询结果转为字典
+        columns = [col[0].lower() for col in cur.description]
+        cur.rowfactory = lambda *args: dict(zip(columns, args))
+        
+        rows = cur.fetchall()
+        
+        # 格式化 JSON 结构
+        formatted_rows = []
+        for row in rows:
+            formatted_rows.append({
+                "id": row.get('name'),
+                "name": row.get('name'),
+                "latitude": row.get('latitude'),
+                "longitude": row.get('longitude'),
+                "areaHectares": row.get('area_hectares'),
+                "ndvi": {"meanNdvi": row.get('ndvi_mean')},
+                "carbon": {
+                    "totalCarbonTonnes": row.get('carbon_total_tonnes'),
+                    "carbonPerHectare": row.get('carbon_per_hectare')
+                },
+                "deprivation": {
+                    "ediScore": row.get('edi_norm'),
+                    "simdRank": row.get('simd_rank'),
+                    "simdQuintile": row.get('simd_decile')
                 }
-            )
-
-        return rows
+            })
+            
+        return formatted_rows
+        
+    except Exception as e:
+        # 在 gunicorn 错误日志里打印
+        print(f"Database Error: {e}", file=sys.stderr)
+        return {"error": str(e)}
     finally:
-        conn.close()
+        if conn:
+            conn.close()
+
+@app.route("/")
+def index():
+    return "Group 1 Project API is Running!"
 
 @app.route("/api/graveyards")
 def api_graveyards():
-    data = fetch_graveyards()
-    return jsonify(data)
+    return jsonify(fetch_graveyards())
 
-if __name__ == "__main__":
-    # 开发调试用：python3 app.py
-    app.run(host="0.0.0.0", port=55429, debug=True)
+# 注意：这里不需要 app.run()，gunicorn 会直接调用 app 对象
