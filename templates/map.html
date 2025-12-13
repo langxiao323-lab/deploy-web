@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edinburgh Carbon Intelligence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edinburgh Carbon Intelligence - Interactive Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -15,108 +16,304 @@
             --neon-green: #10b981;
             --neon-red: #ef4444;
             --neon-purple: #8b5cf6;
+            --neon-yellow: #f59e0b;
             --text: #f1f5f9;
             --border: rgba(148, 163, 184, 0.2);
         }
+        * { box-sizing: border-box; }
         body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); overflow: hidden; }
         #map { height: 100vh; width: 100%; z-index: 1; }
+        
+        /* Loading Spinner */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.98); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 20px;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 4px solid var(--border);
+            border-top-color: var(--neon-blue); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-family: 'Rajdhani'; font-size: 18px; color: var(--neon-blue); }
+        
         .sidebar {
-            position: absolute; top: 20px; left: 20px; bottom: 20px; width: 380px;
+            position: absolute; top: 20px; left: 20px; bottom: 20px; width: 400px;
             background: var(--glass); backdrop-filter: blur(15px);
-            border: 1px solid var(--border); border-radius: 12px;
+            border: 1px solid var(--border); border-radius: 16px;
             z-index: 1000; display: flex; flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            transition: transform 0.3s ease;
         }
+        .sidebar.collapsed { transform: translateX(-420px); }
+        .sidebar-toggle {
+            position: absolute; right: -40px; top: 20px;
+            width: 40px; height: 40px; background: var(--glass);
+            border: 1px solid var(--border); border-radius: 0 8px 8px 0;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s;
+        }
+        .sidebar-toggle:hover { background: rgba(14, 165, 233, 0.2); }
         .header { padding: 20px; border-bottom: 1px solid var(--border); }
-        .header h1 { font-family: 'Rajdhani'; margin: 0; font-size: 26px; text-transform: uppercase; background: linear-gradient(to right, #fff, var(--neon-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .header p { margin: 5px 0 0; font-size: 12px; color: #94a3b8; }
-        .controls { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+        .header h1 { 
+            font-family: 'Rajdhani'; margin: 0; font-size: 28px; font-weight: 700;
+            text-transform: uppercase; 
+            background: linear-gradient(135deg, #fff 0%, var(--neon-blue) 50%, var(--neon-purple) 100%); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s ease infinite;
+        }
+        @keyframes gradient-shift { 0%, 100% { filter: hue-rotate(0deg); } 50% { filter: hue-rotate(10deg); } }
+        .header p { margin: 8px 0 0; font-size: 13px; color: #94a3b8; letter-spacing: 0.5px; }
+        
+        /* Legend */
+        .legend {
+            padding: 15px 20px; border-bottom: 1px solid var(--border);
+            display: flex; gap: 15px; justify-content: space-around;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+        .legend-color { width: 20px; height: 20px; border-radius: 4px; }
+        
+        /* Stats Panel */
+        .stats-panel {
+            padding: 15px 20px; border-bottom: 1px solid var(--border);
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px;
+            text-align: center; border: 1px solid var(--border); transition: 0.3s;
+        }
+        .stat-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+        .stat-value { font-family: 'Rajdhani'; font-size: 20px; font-weight: 700; color: var(--neon-blue); }
+        .stat-label { font-size: 9px; color: #64748b; text-transform: uppercase; margin-top: 4px; }
+        
+        /* Search Box */
+        .search-box { padding: 15px 20px; border-bottom: 1px solid var(--border); }
+        .search-input {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            color: #fff; padding: 10px 12px; border-radius: 8px; outline: none;
+            font-size: 13px; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); }
+        .search-input::placeholder { color: #64748b; }
+        
+        .controls { 
+            padding: 15px 20px; border-bottom: 1px solid var(--border); 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+        }
         .mode-btn { 
-            flex: 1; padding: 8px; border: 1px solid var(--border); background: transparent; color: #94a3b8; 
-            border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s;
+            padding: 12px 8px; border: 1px solid var(--border); 
+            background: rgba(255,255,255,0.02); color: #94a3b8; 
+            border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 600; 
+            transition: all 0.3s; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
         }
-        .mode-btn.active { background: rgba(14, 165, 233, 0.2); color: var(--neon-blue); border-color: var(--neon-blue); }
-        .priority-btn {
-            width: 100%; margin-top: 10px; padding: 10px; background: rgba(239, 68, 68, 0.15); 
-            border: 1px solid var(--neon-red); color: var(--neon-red); border-radius: 6px; cursor: pointer;
-            font-family: 'Rajdhani'; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        .mode-btn::before {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            width: 0; height: 0; border-radius: 50%;
+            background: rgba(14, 165, 233, 0.3); transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
         }
-        .priority-btn:hover { background: rgba(239, 68, 68, 0.3); }
-        .nav-box { padding: 15px 20px; border-bottom: 1px solid var(--border); }
-        .input-group { display: flex; gap: 8px; }
-        .nav-input { 
-            flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border); 
-            color: #fff; padding: 8px; border-radius: 6px; outline: none; font-size: 13px;
+        .mode-btn:hover::before { width: 200px; height: 200px; }
+        .mode-btn.active { 
+            background: rgba(14, 165, 233, 0.2); color: var(--neon-blue); 
+            border-color: var(--neon-blue); box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
         }
-        .nav-action-btn { 
-            background: var(--neon-blue); color: #000; border: none; padding: 0 12px; 
-            border-radius: 6px; cursor: pointer; font-weight: 600; 
-        }
+        
         .list-container { flex: 1; overflow-y: auto; padding: 10px 20px; }
+        .list-container::-webkit-scrollbar { width: 6px; }
+        .list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .list-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .list-container::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }
+        
         .list-item { 
-            padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,0.03); 
-            border-radius: 8px; border-left: 3px solid transparent; cursor: pointer; transition: 0.2s;
+            padding: 14px; margin-bottom: 10px; background: rgba(255,255,255,0.03); 
+            border-radius: 10px; border-left: 4px solid transparent; 
+            cursor: pointer; transition: all 0.3s;
         }
-        .list-item:hover { background: rgba(255,255,255,0.08); }
-        .list-item.active { background: rgba(16, 185, 129, 0.1); border-left-color: var(--neon-green); }
-        .item-header { display: flex; justify-content: space-between; font-weight: 600; font-size: 14px; }
-        .item-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; display: flex; gap: 10px; }
+        .list-item:hover { 
+            background: rgba(255,255,255,0.08); 
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .item-header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; }
+        .item-sub { font-size: 11px; color: #94a3b8; margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap; }
+        
         .simulator { padding: 20px; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border); }
         .sim-title { font-size: 12px; text-transform: uppercase; color: var(--neon-green); margin-bottom: 10px; }
         input[type=range] { width: 100%; accent-color: var(--neon-green); }
+        
         .leaflet-popup-content-wrapper { 
-            background: rgba(15, 23, 42, 0.95); 
+            background: rgba(15, 23, 42, 0.98); 
             color: #fff; 
-            border: 1px solid var(--neon-blue); 
-            border-radius: 12px; 
-            backdrop-filter: blur(10px); 
+            border: 2px solid var(--neon-blue); 
+            border-radius: 16px; 
+            backdrop-filter: blur(20px); 
             padding: 0; 
             overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(14, 165, 233, 0.3);
         }
-        .leaflet-popup-content { margin: 0; width: 260px !important; }
+        .leaflet-popup-content { margin: 0; width: 320px !important; }
         .leaflet-popup-tip { background: rgba(15, 23, 42, 0.95); }
-        .leaflet-container a.leaflet-popup-close-button { color: #fff; font-size: 18px; top: 5px; right: 5px; text-shadow: 0 0 5px black; }
+        .leaflet-container a.leaflet-popup-close-button { color: #fff; font-size: 18px; top: 5px; right: 5px; }
+        
         .popup-img-container {
             width: 100%; height: 140px; background: #000; position: relative;
             overflow: hidden; border-bottom: 1px solid var(--border);
         }
         .popup-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
         .popup-img:hover { transform: scale(1.1); }
-        .popup-info { padding: 15px; }
-        .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
-        .tag.priority { border-color: var(--neon-red); color: var(--neon-red); background: rgba(239, 68, 68, 0.1); }
-        .leaflet-routing-container { background-color: #1e293b !important; color: #fff !important; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; }
+        .popup-info { padding: 20px; }
+        .popup-header { 
+            font-family: 'Rajdhani'; font-size: 22px; font-weight: 700;
+            margin: 0 0 15px 0;
+        }
+        .popup-stats {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+            margin: 15px 0;
+        }
+        .popup-stat {
+            background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .popup-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; }
+        .popup-stat-value { font-family: 'Rajdhani'; font-size: 18px; font-weight: 700; margin-top: 4px; }
+        
+        /* Export Button */
+        .export-btn {
+            position: absolute; bottom: 20px; right: 20px; z-index: 1000;
+            background: var(--glass); backdrop-filter: blur(15px);
+            border: 1px solid var(--border); border-radius: 12px;
+            padding: 12px 20px; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; color: var(--text);
+        }
+        .export-btn:hover { 
+            background: rgba(14, 165, 233, 0.2); 
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+        }
+        
+        .tag { 
+            font-size: 9px; padding: 3px 8px; border-radius: 12px; 
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 600; display: inline-block; margin: 2px;
+        }
+        .tag.priority { border-color: var(--neon-red); color: var(--neon-red); background: rgba(239, 68, 68, 0.15); }
+        .tag.biodiversity { border-color: var(--neon-green); color: var(--neon-green); background: rgba(16, 185, 129, 0.15); }
+        .tag.heritage { border-color: var(--neon-yellow); color: var(--neon-yellow); background: rgba(245, 158, 11, 0.15); }
+        .tag.highest { border-color: var(--neon-blue); color: var(--neon-blue); background: rgba(14, 165, 233, 0.15); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        
+        /* Legend on map */
+        .map-legend {
+            position: absolute; bottom: 30px; right: 20px; z-index: 1000;
+            background: var(--glass); backdrop-filter: blur(15px);
+            border: 1px solid var(--border); border-radius: 12px;
+            padding: 15px; min-width: 150px;
+        }
+        .map-legend-title {
+            font-size: 12px; font-weight: 600; margin-bottom: 10px;
+            text-transform: uppercase; color: var(--neon-blue);
+        }
+        .legend-item-map {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px; margin-bottom: 6px;
+        }
+        .legend-color-map {
+            width: 20px; height: 20px; border-radius: 4px;
+        }
+        
+        
+        /* Priority highlight for list items */
+        .list-item.priority-site {
+            border-left-color: var(--neon-red);
+            background: rgba(239, 68, 68, 0.08);
+        }
+        .list-item.highest-edi {
+            border-left-color: var(--neon-blue);
+            background: rgba(14, 165, 233, 0.08);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; left: 0; right: 0; bottom: 0; top: auto; height: 50vh; border-radius: 16px 16px 0 0; }
+            .sidebar.collapsed { transform: translateY(calc(50vh - 60px)); }
+            .export-btn { bottom: auto; top: 20px; }
+            .map-legend { bottom: auto; top: 80px; }
+            .insights-panel { top: 80px; right: 10px; max-width: 200px; font-size: 10px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="header">
-        <h1>Carbon Intelligence</h1>
-        <p>Report-Driven Spatial Analysis</p>
-    </div>
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading Edinburgh Graveyard Data...</div>
+</div>
 
-    <div class="controls">
-        <button class="mode-btn active" onclick="setMode('carbon')">Carbon View</button>
-        <button class="mode-btn" onclick="setMode('edi')">Deprivation (EDI)</button>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
     </div>
     
-    <div style="padding: 0 20px;">
-        <button class="priority-btn" onclick="showPrioritySites()">
-            <i class="fa-solid fa-triangle-exclamation"></i> Show Priority Zones
-        </button>
+    <div class="header">
+        <h1>Carbon Intelligence</h1>
+        <p>Edinburgh Greenspace Analysis System</p>
     </div>
 
-    <div class="nav-box">
-        <div style="font-size:11px; color:#94a3b8; margin-bottom:5px;">PLAN ROUTE TO SELECTED SITE</div>
-        <div class="input-group">
-            <input type="text" id="start-location" class="nav-input" placeholder="Enter start location">
-            <button class="nav-action-btn" onclick="calculateRoute()"><i class="fa-solid fa-route"></i></button>
+    <!-- View Mode Controls -->
+    <div class="controls" style="grid-template-columns: repeat(2, 1fr);">
+        <button class="mode-btn active" onclick="setMode('carbon')"><i class="fa-solid fa-leaf"></i> Carbon/Ha</button>
+        <button class="mode-btn" onclick="setMode('agb')"><i class="fa-solid fa-seedling"></i> AGB Total</button>
+        <button class="mode-btn" onclick="setMode('canopy')"><i class="fa-solid fa-cloud"></i> Canopy %</button>
+        <button class="mode-btn" onclick="setMode('edi')"><i class="fa-solid fa-tree"></i> EDI</button>
+        <button class="mode-btn" onclick="setMode('ndvi')"><i class="fa-solid fa-spa"></i> NDVI</button>
+        <button class="mode-btn" onclick="setMode('simd')"><i class="fa-solid fa-house-user"></i> SIMD</button>
+        <button class="mode-btn" onclick="setMode('strata')"><i class="fa-solid fa-layer-group"></i> Strata</button>
+    </div>
+
+    <!-- Advanced Filters -->
+    <div style="padding: 15px 20px; border-bottom: 1px solid var(--border);">
+        <div style="font-size: 10px; color: #64748b; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Advanced Filters</div>
+        <div style="margin-bottom: 12px;">
+            <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 6px;">Carbon Range (t)</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="number" id="carbon-min" value="0" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px; border-radius: 4px; font-size: 11px;">
+                <span style="color: #64748b;">-</span>
+                <input type="number" id="carbon-max" value="200" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px; border-radius: 4px; font-size: 11px;">
+            </div>
+        </div>
+        <button onclick="applyFilters()" style="width: 100%; padding: 8px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); border: none; color: #fff; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600;">Apply Filters</button>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+        <div class="stat-card">
+            <div class="stat-value" id="stat-total">35</div>
+            <div class="stat-label">Total Sites</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-carbon">--</div>
+            <div class="stat-label">Total Carbon (t)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-avg-edi">--</div>
+            <div class="stat-label">Avg EDI</div>
         </div>
     </div>
 
+    <!-- Search Box -->
+    <div class="search-box">
+        <input type="text" class="search-input" id="search-input" placeholder="Search graveyards..." oninput="filterList()">
+    </div>
+
+    <!-- List Container -->
     <div class="list-container" id="list"></div>
 
+    <!-- Simulator Panel -->
     <div class="simulator" id="sim-panel" style="display:none;">
         <div class="sim-title"><i class="fa-solid fa-tree"></i> Investment Simulator</div>
         <div style="font-size:11px; margin-bottom:5px;">Increase Canopy by: <span id="sim-val" style="color:var(--neon-green)">0%</span></div>
@@ -126,6 +323,30 @@
 </div>
 
 <div id="map"></div>
+
+
+<!-- Legend on Map -->
+<div class="map-legend" id="map-legend">
+    <div class="map-legend-title">Legend</div>
+    <div class="legend-item-map">
+        <div class="legend-color-map" id="legend-map-high" style="background: #059669;"></div>
+        <span id="legend-map-high-text">High</span>
+    </div>
+    <div class="legend-item-map">
+        <div class="legend-color-map" id="legend-map-medium" style="background: #10b981;"></div>
+        <span id="legend-map-medium-text">Medium</span>
+    </div>
+    <div class="legend-item-map">
+        <div class="legend-color-map" id="legend-map-low" style="background: #6ee7b7;"></div>
+        <span id="legend-map-low-text">Low</span>
+    </div>
+</div>
+
+<!-- Export Button -->
+<div class="export-btn" onclick="exportData()">
+    <i class="fa-solid fa-download"></i>
+    <span>Export Data</span>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
@@ -143,71 +364,128 @@
     function getStyle(feature) {
         var p = feature.properties;
         var color = '#94a3b8';
+        var opacity = 0.5;
 
         if (currentMode === 'carbon') {
-            if (p.Strata === 'High') color = '#10b981';
-            else if (p.Strata === 'Medium') color = '#facc15';
-            else color = '#ef4444';
+            // Carbon per hectare: yellow-green to dark green (high contrast)
+            var c = p.CarbonPerHectare || 0;
+            if (c > 120) color = '#065f46';  // Very dark green
+            else if (c > 80) color = '#059669';  // Dark green
+            else if (c > 40) color = '#10b981';  // Medium green
+            else color = '#bef264';  // Yellow-green (very visible)
+        } else if (currentMode === 'agb') {
+            // AGB Total: yellow-green to dark green
+            var agb = p.AGBTotal || 0;
+            if (agb > 100) color = '#065f46';  // Very dark green
+            else if (agb > 50) color = '#059669';  // Dark green
+            else if (agb > 20) color = '#10b981';  // Medium green
+            else color = '#bef264';  // Yellow-green
         } else if (currentMode === 'edi') {
-            if (p.EDI < 0.3) color = '#ef4444';
-            else if (p.EDI < 0.6) color = '#c084fc';
-            else color = '#38bdf8';
+            // EDI: 0-45 range (actual data range), yellow-green to dark green
+            var edi = p.EDI || 0;
+            if (edi >= 30) color = '#065f46';  // Very dark green (high EDI)
+            else if (edi >= 20) color = '#059669';  // Dark green
+            else if (edi >= 10) color = '#10b981';  // Medium green
+            else color = '#bef264';  // Yellow-green (low EDI)
+        } else if (currentMode === 'ndvi') {
+            // NDVI: 0-1 range, yellow to dark green
+            var ndvi = p.NDVI || 0;
+            if (ndvi >= 0.4) color = '#065f46';  // Very dark green
+            else if (ndvi >= 0.3) color = '#059669';  // Dark green
+            else if (ndvi >= 0.2) color = '#10b981';  // Medium green
+            else color = '#fbbf24';  // Yellow (low vegetation)
+        } else if (currentMode === 'canopy') {
+            // Canopy Percentage: 0-100%, yellow-green to dark green
+            var canopy = p.Canopy || 0;
+            if (canopy >= 70) color = '#065f46';  // Very dark green
+            else if (canopy >= 50) color = '#059669';  // Dark green
+            else if (canopy >= 30) color = '#10b981';  // Medium green
+            else color = '#bef264';  // Yellow-green
+        } else if (currentMode === 'simd') {
+            // SIMD: orange to red (lower = more deprived)
+            if (p.SIMD <= 3) color = '#ef4444';
+            else if (p.SIMD <= 7) color = '#f97316';
+            else color = '#fb923c';
+        } else if (currentMode === 'strata') {
+            // Strata: yellow-green to dark green
+            if (p.Strata === 'High') color = '#065f46';  // Very dark green
+            else if (p.Strata === 'Medium') color = '#10b981';  // Medium green
+            else color = '#bef264';  // Yellow-green
         }
 
         return {
             fillColor: color, weight: 2, opacity: 1, color: 'white', 
-            dashArray: '3', fillOpacity: 0.4
+            dashArray: '3', fillOpacity: opacity
         };
+    }
+
+    function updateLegend() {
+        if (currentMode === 'carbon') {
+            // Carbon per hectare: yellow-green to very dark green
+            document.getElementById('legend-map-high').style.background = '#065f46';  // Very dark green
+            document.getElementById('legend-map-medium').style.background = '#10b981';  // Medium green
+            document.getElementById('legend-map-low').style.background = '#bef264';  // Yellow-green
+            document.getElementById('legend-map-high-text').textContent = '>120 t/ha';
+            document.getElementById('legend-map-medium-text').textContent = '40-120 t/ha';
+            document.getElementById('legend-map-low-text').textContent = '<40 t/ha';
+        } else if (currentMode === 'agb') {
+            // AGB Total: yellow-green to dark green
+            document.getElementById('legend-map-high').style.background = '#065f46';
+            document.getElementById('legend-map-medium').style.background = '#10b981';
+            document.getElementById('legend-map-low').style.background = '#bef264';
+            document.getElementById('legend-map-high-text').textContent = '>100 t';
+            document.getElementById('legend-map-medium-text').textContent = '20-100 t';
+            document.getElementById('legend-map-low-text').textContent = '<20 t';
+        } else if (currentMode === 'edi') {
+            // EDI: actual range 0-45, yellow-green to dark green
+            document.getElementById('legend-map-high').style.background = '#065f46';
+            document.getElementById('legend-map-medium').style.background = '#10b981';
+            document.getElementById('legend-map-low').style.background = '#bef264';
+            document.getElementById('legend-map-high-text').textContent = 'High (>30)';
+            document.getElementById('legend-map-medium-text').textContent = 'Medium (10-30)';
+            document.getElementById('legend-map-low-text').textContent = 'Low (<10)';
+        } else if (currentMode === 'ndvi') {
+            // NDVI: yellow to dark green
+            document.getElementById('legend-map-high').style.background = '#065f46';
+            document.getElementById('legend-map-medium').style.background = '#10b981';
+            document.getElementById('legend-map-low').style.background = '#fbbf24';  // Yellow
+            document.getElementById('legend-map-high-text').textContent = 'High (>0.4)';
+            document.getElementById('legend-map-medium-text').textContent = 'Medium (0.2-0.4)';
+            document.getElementById('legend-map-low-text').textContent = 'Low (<0.2)';
+        } else if (currentMode === 'canopy') {
+            // Canopy Percentage: yellow-green to dark green
+            document.getElementById('legend-map-high').style.background = '#065f46';
+            document.getElementById('legend-map-medium').style.background = '#10b981';
+            document.getElementById('legend-map-low').style.background = '#bef264';
+            document.getElementById('legend-map-high-text').textContent = 'Dense (>70%)';
+            document.getElementById('legend-map-medium-text').textContent = 'Medium (30-70%)';
+            document.getElementById('legend-map-low-text').textContent = 'Sparse (<30%)';
+        } else if (currentMode === 'simd') {
+            // SIMD mode: orange to red
+            document.getElementById('legend-map-high').style.background = '#fb923c';
+            document.getElementById('legend-map-medium').style.background = '#f97316';
+            document.getElementById('legend-map-low').style.background = '#ef4444';
+            document.getElementById('legend-map-high-text').textContent = 'Least Deprived';
+            document.getElementById('legend-map-medium-text').textContent = 'Medium';
+            document.getElementById('legend-map-low-text').textContent = 'Most Deprived';
+        } else if (currentMode === 'strata') {
+            // Strata: yellow-green to dark green
+            document.getElementById('legend-map-high').style.background = '#065f46';
+            document.getElementById('legend-map-medium').style.background = '#10b981';
+            document.getElementById('legend-map-low').style.background = '#bef264';
+            document.getElementById('legend-map-high-text').textContent = 'High';
+            document.getElementById('legend-map-medium-text').textContent = 'Medium';
+            document.getElementById('legend-map-low-text').textContent = 'Low';
+        }
     }
 
     function setMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
+        updateLegend();
         geojsonLayer.setStyle(getStyle);
         renderList();
-    }
-
-    function showPrioritySites() {
-        alert("Highlighting sites with combined Social & Environmental Deprivation");
-        var target = rawData.features.find(f => f.properties.name.includes("Buccleuch"));
-        if(target) {
-            var latlngs = L.GeoJSON.coordsToLatLngs(target.geometry.coordinates, 1);
-            var bounds = L.latLngBounds(latlngs);
-            map.flyToBounds(bounds, { padding: [100,100], duration: 2 });
-            setTimeout(() => {
-                geojsonLayer.eachLayer(l => {
-                    if(l.feature.properties.name === target.properties.name) l.fire('click');
-                });
-            }, 2000);
-        }
-    }
-
-    function calculateRoute() {
-        var startText = document.getElementById('start-location').value;
-        if(!startText || !selectedFeature) {
-            alert("Please select a cemetery on the map AND enter a start location.");
-            return;
-        }
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${startText}`)
-            .then(res => res.json())
-            .then(locs => {
-                if(locs.length === 0) { alert("Location not found!"); return; }
-                var startLat = locs[0].lat;
-                var startLon = locs[0].lon;
-                var layer = getLayerByFeature(selectedFeature);
-                var endLat = layer.getBounds().getCenter().lat;
-                var endLon = layer.getBounds().getCenter().lng;
-
-                if(routingControl) map.removeControl(routingControl);
-                routingControl = L.Routing.control({
-                    waypoints: [L.latLng(startLat, startLon), L.latLng(endLat, endLon)],
-                    lineOptions: { styles: [{color: '#0ea5e9', weight: 6}] },
-                    createMarker: function() { return null; },
-                    addWaypoints: false,
-                    draggableWaypoints: false
-                }).addTo(map);
-            });
     }
 
     function getLayerByFeature(f) {
@@ -219,18 +497,25 @@
     function updateSim(percent) {
         document.getElementById('sim-val').innerText = `+${percent}%`;
         if(selectedFeature) {
-            var currentC = parseFloat(selectedFeature.properties.Carbon);
+            var currentC = parseFloat(selectedFeature.properties.CarbonPerHectare || 0);
             var projected = currentC * (1 + percent/100);
-            document.getElementById('sim-result').innerText = `${projected.toFixed(1)} t`;
+            document.getElementById('sim-result').innerText = `${projected.toFixed(1)} t/ha`;
         }
     }
 
     function renderList() {
         var container = document.getElementById('list');
         container.innerHTML = '';
+        
+        // Sort based on current mode
         var sorted = [...rawData.features].sort((a,b) => {
-            if(currentMode === 'edi') return a.properties.EDI - b.properties.EDI;
-            return b.properties.Carbon - a.properties.Carbon;
+            if(currentMode === 'carbon') return b.properties.CarbonPerHectare - a.properties.CarbonPerHectare;
+            if(currentMode === 'agb') return b.properties.AGBTotal - a.properties.AGBTotal;
+            if(currentMode === 'edi') return b.properties.EDI - a.properties.EDI;
+            if(currentMode === 'ndvi') return b.properties.NDVI - a.properties.NDVI;
+            if(currentMode === 'canopy') return b.properties.Canopy - a.properties.Canopy;
+            if(currentMode === 'simd') return a.properties.SIMD - b.properties.SIMD;
+            return 0;
         });
 
         sorted.forEach(f => {
@@ -238,9 +523,33 @@
             if(!p.has_data) return;
             var el = document.createElement('div');
             el.className = 'list-item';
-            var valueDisplay = currentMode === 'edi' ? `EDI: ${p.EDI.toFixed(2)}` : `${p.Carbon.toFixed(1)} t`;
-            var tagsHtml = (p.ReportTags || []).map(t => `<span class="tag ${t.includes('Priority')?'priority':''}">${t}</span>`).join(' ');
+            
+            // Display value based on current mode
+            var valueDisplay = '';
+            if(currentMode === 'carbon') valueDisplay = `${p.CarbonPerHectare ? p.CarbonPerHectare.toFixed(1) : '0'} t/ha`;
+            else if(currentMode === 'agb') valueDisplay = `${p.AGBTotal ? p.AGBTotal.toFixed(1) : '0'} t`;
+            else if(currentMode === 'edi') valueDisplay = `EDI: ${p.EDI ? p.EDI.toFixed(1) : '0'}`;
+            else if(currentMode === 'ndvi') valueDisplay = `NDVI: ${p.NDVI ? p.NDVI.toFixed(3) : '0'}`;
+            else if(currentMode === 'canopy') valueDisplay = `${p.Canopy ? p.Canopy.toFixed(1) : '0'}%`;
+            else if(currentMode === 'simd') valueDisplay = `SIMD: ${p.SIMD || 'N/A'}`;
+            else if(currentMode === 'strata') valueDisplay = p.Strata || 'N/A';
+            
+            // Generate tags with appropriate classes
+            var tagsHtml = (p.ReportTags || []).map(t => {
+                var tagClass = 'tag';
+                if(t.includes('Priority')) tagClass += ' priority';
+                if(t.includes('Biodiversity') || t.includes('Species')) tagClass += ' biodiversity';
+                if(t.includes('Heritage') || t.includes('Monument') || t.includes('Tourist')) tagClass += ' heritage';
+                if(t.includes('Highest')) tagClass += ' highest';
+                return `<span class="${tagClass}">${t}</span>`;
+            }).join(' ');
+            
+            // Add special class for priority/highest EDI sites
+            var specialClass = '';
+            if((p.ReportTags || []).some(t => t.includes('Priority'))) specialClass = 'priority-site';
+            if((p.ReportTags || []).some(t => t.includes('Highest'))) specialClass = 'highest-edi';
 
+            el.className = `list-item ${specialClass}`;
             el.innerHTML = `
                 <div class="item-header">
                     <span>${p.name}</span>
@@ -286,50 +595,175 @@
             });
     }
 
-    fetch('api/graveyards')
-        .then(res => res.json())
+    // Advanced Filters
+    function applyFilters() {
+        var carbonMin = parseFloat(document.getElementById('carbon-min').value) || 0;
+        var carbonMax = parseFloat(document.getElementById('carbon-max').value) || 9999;
+        
+        var filteredCount = 0;
+        
+        geojsonLayer.eachLayer(layer => {
+            var p = layer.feature.properties;
+            var carbon = p.CarbonPerHectare || 0;
+            
+            if (carbon >= carbonMin && carbon <= carbonMax) {
+                layer.setStyle({ opacity: 1, fillOpacity: 0.5 });
+                filteredCount++;
+            } else {
+                layer.setStyle({ opacity: 0.2, fillOpacity: 0.1 });
+            }
+        });
+        
+        alert(`Filters applied! Showing ${filteredCount} sites matching criteria.`);
+        renderList();
+    }
+
+    // Sidebar toggle
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+    
+
+    // Export data
+    function exportData() {
+        if (!rawData) {
+            alert('No data available to export');
+            return;
+        }
+        
+        const dataStr = JSON.stringify(rawData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'edinburgh_graveyards_data.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        alert('Data exported successfully!');
+    }
+
+    // Search/Filter list
+    function filterList() {
+        var searchTerm = document.getElementById('search-input').value.toLowerCase();
+        var items = document.querySelectorAll('.list-item');
+        items.forEach(item => {
+            var text = item.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    // Load data from API - use relative path to adapt to deployment path
+    var apiPath = window.location.pathname.replace(/\/$/, '') + '/api/graveyards';
+    if (apiPath.startsWith('//')) apiPath = apiPath.substring(1);
+    
+    fetch(apiPath)
+        .then(response => response.json())
         .then(data => {
             rawData = data;
             
+            // Calculate statistics
+            var totalCarbon = 0;
+            var totalEDI = 0;
+            var count = 0;
+            data.features.forEach(f => {
+                if (f.properties.has_data) {
+                    totalCarbon += f.properties.CarbonPerHectare || 0;
+                    totalEDI += f.properties.EDI || 0;
+                    count++;
+                }
+            });
+            
+            document.getElementById('stat-carbon').textContent = totalCarbon.toFixed(1);
+            document.getElementById('stat-avg-edi').textContent = (totalEDI / count).toFixed(1);
+            
+            // Add GeoJSON layer
             geojsonLayer = L.geoJSON(data, {
                 style: getStyle,
                 onEachFeature: function(feature, layer) {
-                    layer.on({
-                        mouseover: e => { e.target.setStyle({ weight: 4, fillOpacity: 0.8 }); },
-                        mouseout: e => { geojsonLayer.resetStyle(e.target); },
-                        click: e => {
-                            selectedFeature = feature;
-                            var p = feature.properties;
-                            document.getElementById('sim-panel').style.display = 'block';
-                            updateSim(0);
-                            document.querySelector('.list-item.active')?.classList.remove('active');
-                            var imgId = "img-" + Math.random().toString(36).substr(2, 9);
-
-                            var content = `
-                                <div class="popup-img-container">
-                                    <img id="${imgId}" class="popup-img" src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" alt="Loading...">
+                    layer.on('click', function() {
+                        selectedFeature = feature;
+                        var p = feature.properties;
+                        var imgId = 'popup-img-' + p.id;
+                        
+                        var coords = layer.getBounds().getCenter();
+                        var googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`;
+                        
+                        var popupContent = `
+                            <div class="popup-img-container">
+                                <img id="${imgId}" class="popup-img" src="https://images.unsplash.com/photo-1518709414768-a88981a4515d?q=80&w=600&auto=format&fit=crop" alt="${p.name}">
+                            </div>
+                            <div class="popup-info">
+                                <h2 class="popup-header">${p.name}</h2>
+                                <div class="popup-stats">
+                                    <div class="popup-stat">
+                                        <div class="popup-stat-label">Area</div>
+                                        <div class="popup-stat-value" style="color: var(--neon-yellow);">${p.Area ? (p.Area / 10000).toFixed(2) : 'N/A'} ha</div>
+                                    </div>
+                                    <div class="popup-stat">
+                                        <div class="popup-stat-label">Carbon/Ha</div>
+                                        <div class="popup-stat-value" style="color: var(--neon-green);">${p.CarbonPerHectare ? p.CarbonPerHectare.toFixed(1) : 'N/A'} t/ha</div>
+                                    </div>
+                                    <div class="popup-stat">
+                                        <div class="popup-stat-label">AGB Total</div>
+                                        <div class="popup-stat-value" style="color: var(--neon-green);">${p.AGBTotal ? p.AGBTotal.toFixed(1) : 'N/A'} t</div>
+                                    </div>
+                                    <div class="popup-stat">
+                                        <div class="popup-stat-label">Canopy %</div>
+                                        <div class="popup-stat-value" style="color: var(--neon-green);">${p.Canopy ? p.Canopy.toFixed(1) : 'N/A'}%</div>
+                                    </div>
+                                    <div class="popup-stat">
+                                        <div class="popup-stat-label">EDI Score</div>
+                                        <div class="popup-stat-value" style="color: var(--neon-blue);">${p.EDI ? p.EDI.toFixed(1) : 'N/A'}</div>
+                                    </div>
+                                    <div class="popup-stat">
+                                        <div class="popup-stat-label">NDVI</div>
+                                        <div class="popup-stat-value" style="color: var(--neon-blue);">${p.NDVI ? p.NDVI.toFixed(3) : 'N/A'}</div>
+                                    </div>
+                                    <div class="popup-stat">
+                                        <div class="popup-stat-label">SIMD Decile</div>
+                                        <div class="popup-stat-value" style="color: var(--neon-purple);">${p.SIMD || 'N/A'}</div>
+                                    </div>
+                                    <div class="popup-stat">
+                                        <div class="popup-stat-label">Strata</div>
+                                        <div class="popup-stat-value">${p.Strata || 'N/A'}</div>
+                                    </div>
                                 </div>
-                                <div class="popup-info">
-                                    <h3 style="margin:0; font-family:'Rajdhani'; font-size:20px; color:${getStyle(feature).fillColor}">${p.name}</h3>
-                                    <p style="margin:10px 0; font-size:12px; color:#cbd5e1; line-height:1.6;">
-                                        <i class="fa-solid fa-leaf" style="color:var(--neon-green)"></i> Carbon: <b>${p.Carbon.toFixed(1)} t</b><br>
-                                        <i class="fa-solid fa-chart-line" style="color:var(--neon-purple)"></i> EDI Score: <b>${p.EDI ? p.EDI.toFixed(2) : 'N/A'}</b><br>
-                                        <i class="fa-solid fa-users" style="color:var(--neon-blue)"></i> SIMD Decile: <b>${p.SIMD}</b>
-                                    </p>
-                                    ${p.ReportTags ? `<div style="margin-bottom:10px; font-size:10px;">${p.ReportTags.map(t=>`<span class="tag">${t}</span>`).join(' ')}</div>` : ''}
-                                    <div style="font-size:10px; color:#64748b;"><i>Select "Navigate Here" from sidebar.</i></div>
-                                </div>
-                            `;
-                            layer.bindPopup(content).openPopup();
-                            fetchWikiImage(p.name, imgId);
-                        }
+                                <a href="${googleMapsUrl}" target="_blank" style="display: block; margin-top: 15px; padding: 10px; background: var(--neon-blue); color: #fff; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
+                                    <i class="fa-solid fa-location-arrow"></i> Navigate with Google Maps
+                                </a>
+                            </div>
+                        `;
+                        
+                        layer.bindPopup(popupContent, { maxWidth: 320 }).openPopup();
+                        fetchWikiImage(p.name, imgId);
+                        
+                        // Show simulator panel
+                        document.getElementById('sim-panel').style.display = 'block';
                     });
                 }
             }).addTo(map);
-
-            if(data.features.length) map.fitBounds(geojsonLayer.getBounds());
+            
+            // Render list
             renderList();
+            
+            // Hide loading
+            document.getElementById('loading').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error loading data:', error);
+            document.getElementById('loading').innerHTML = '<div class="spinner"></div><div class="loading-text">Error loading data. Please refresh.</div>';
         });
+
+    // Add zoom controls
+    L.control.zoom({ position: 'topright' }).addTo(map);
 </script>
 </body>
 </html>
