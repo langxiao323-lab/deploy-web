@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Edinburgh Carbon Intelligence - Research on carbon storage potential in Edinburgh's graveyards. Interactive map and detailed analysis of environmental and social deprivation.">
+    <meta name="keywords" content="Edinburgh, carbon storage, graveyards, environmental research, GeoSciences, University of Edinburgh">
+    <meta name="author" content="University of Edinburgh - School of GeoSciences">
+    <meta property="og:title" content="Edinburgh Carbon Intelligence">
+    <meta property="og:description" content="What graveyards tell us about carbon and communities">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/png" href="/dev/group1project/static/report_images/University_of_Edinburgh_Coat_of_Arm.png">
     <title>Edinburgh Carbon Intelligence - Interactive Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
@@ -24,6 +31,40 @@
         
         * {
             box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Back to Top Button */
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            background: #d63850;
+            transform: translateY(-3px);
         }
         
         body {
@@ -558,6 +599,33 @@
             height: 20px;
             border-radius: 4px;
         }
+        /* Graveyard number labels */
+        
+        .graveyard-number-label {
+            background: transparent;
+        }
+        
+        .number-marker {
+            width: 24px;
+            height: 24px;
+            background: rgba(14, 165, 233, 0.9);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        
+        .number-marker:hover {
+            transform: scale(1.2);
+            background: rgba(139, 92, 246, 0.9);
+        }
         /* Priority highlight for list items */
         
         .list-item.priority-site {
@@ -975,22 +1043,16 @@
         .report-footer {
             background: #636e72;
             color: #fff;
-            padding: 50px 40px;
+            padding: 15px 40px;
         }
         
         .report-footer-inner {
             max-width: 100%;
             margin: 0;
-            padding: 0 40px;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            gap: 40px;
-        }
-        
-        .report-footer-form {
-            flex: 1;
-            max-width: 400px;
+            align-items: center;
+            gap: 20px;
         }
         
         .report-footer-form h4 {
@@ -1045,7 +1107,7 @@
         }
         
         .report-footer-brand img {
-            height: 250px;
+            height: 60px;
         }
         
         .report-footer-info h4 {
@@ -1085,17 +1147,53 @@
             .report-team-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
-            .report-nav-links {
-                display: none;
+            .report-team-member {
+                text-align: center;
+            }
+            .report-team-avatar-img {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                object-fit: cover;
+                margin: 0 auto 12px;
+                border: 3px solid #f8f9fa;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+            .report-team-member h4 {
+                font-size: 14px;
+                margin-bottom: 3px;
+                color: #2d3436;
             }
             .report-hero h1 {
                 font-size: 36px;
+            }
+            .report-hero-content>div {
+                flex-direction: column !important;
+                padding: 0 20px !important;
+            }
+            .report-hero-content>div img {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .report-footer-inner {
+                flex-direction: column;
+                padding: 0 20px;
+            }
+            .report-footer-brand img {
+                height: 150px;
+            }
+            .report-footer-form {
+                max-width: 100%;
             }
         }
     </style>
 </head>
 
 <body>
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loading">
@@ -1118,20 +1216,28 @@
                 </button>
                 <button onclick="switchPage('report')" id="btn-report" style="flex: 1; padding: 10px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.5); color: rgba(139, 92, 246, 0.7); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s;"
                     onmouseover="this.style.background='rgba(139, 92, 246, 0.2)'" onmouseout="this.style.background='rgba(139, 92, 246, 0.1)'">
-                    <i class="fa-solid fa-file-pdf"></i> Research Report
+                    <i class="fa-solid fa-home"></i> Home
                 </button>
             </div>
         </div>
 
         <!-- View Mode Controls -->
         <div class="controls" style="grid-template-columns: repeat(2, 1fr);">
-            <button class="mode-btn active" onclick="setMode('carbon')"><i class="fa-solid fa-leaf"></i> Carbon/Ha</button>
-            <button class="mode-btn" onclick="setMode('agb')"><i class="fa-solid fa-seedling"></i> AGB Total</button>
-            <button class="mode-btn" onclick="setMode('canopy')"><i class="fa-solid fa-cloud"></i> Canopy %</button>
-            <button class="mode-btn" onclick="setMode('edi')"><i class="fa-solid fa-tree"></i> EDI</button>
-            <button class="mode-btn" onclick="setMode('ndvi')"><i class="fa-solid fa-spa"></i> NDVI</button>
-            <button class="mode-btn" onclick="setMode('simd')"><i class="fa-solid fa-house-user"></i> SIMD</button>
-            <button class="mode-btn" onclick="setMode('strata')"><i class="fa-solid fa-layer-group"></i> Strata</button>
+            <button class="mode-btn active" onclick="setMode('carbon')" title="Carbon storage per hectare (tonnes/ha) - Shows carbon density of each graveyard"><i class="fa-solid fa-leaf"></i> Carbon/Ha</button>
+            <button class="mode-btn" onclick="setMode('agb')" title="Above Ground Biomass Total (tonnes) - Total carbon stored in vegetation"><i class="fa-solid fa-seedling"></i> AGB Total</button>
+            <button class="mode-btn" onclick="setMode('canopy')" title="Canopy Cover Percentage - Tree canopy coverage of each site"><i class="fa-solid fa-cloud"></i> Canopy %</button>
+            <button class="mode-btn" onclick="setMode('edi')" title="Environmental Deprivation Index - Measures environmental quality (higher = better)"><i class="fa-solid fa-tree"></i> EDI</button>
+            <button class="mode-btn" onclick="setMode('ndvi')" title="Normalized Difference Vegetation Index - Satellite-derived vegetation greenness (0-1)"><i class="fa-solid fa-spa"></i> NDVI</button>
+            <button class="mode-btn" onclick="setMode('simd')" title="Scottish Index of Multiple Deprivation - Neighbourhood deprivation level (1=most deprived, 10=least)"><i class="fa-solid fa-house-user"></i> SIMD</button>
+            <button class="mode-btn" onclick="setMode('strata')" title="Vegetation Strata Classification - High/Medium/Low tree coverage category"><i class="fa-solid fa-layer-group"></i> Strata</button>
+        </div>
+
+        <!-- Edinburgh SIMD Background Toggle -->
+        <div style="padding: 15px 20px; border-bottom: 1px solid var(--border);">
+            <div style="font-size: 10px; color: #64748b; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">City-wide SIMD</div>
+            <button id="simd-bg-btn" onclick="toggleSIMDBackground()" title="Toggle city-wide SIMD background layer showing neighbourhood deprivation across Edinburgh" style="width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s;">
+                <i class="fa-solid fa-layer-group"></i> Edinburgh Deprivation Map
+            </button>
         </div>
 
         <!-- Advanced Filters -->
@@ -1188,16 +1294,49 @@
         <div class="map-legend" id="map-legend">
             <div class="map-legend-title">Legend</div>
             <div class="legend-item-map">
-                <div class="legend-color-map" id="legend-map-high" style="background: #059669;"></div>
-                <span id="legend-map-high-text">High</span>
+                <div class="legend-color-map" id="legend-map-1" style="background: #059669;"></div>
+                <span id="legend-map-1-text">High</span>
+            </div>
+            <div class="legend-item-map" id="legend-item-2" style="display: none;">
+                <div class="legend-color-map" id="legend-map-2" style="background: #10b981;"></div>
+                <span id="legend-map-2-text">Medium-High</span>
             </div>
             <div class="legend-item-map">
-                <div class="legend-color-map" id="legend-map-medium" style="background: #10b981;"></div>
-                <span id="legend-map-medium-text">Medium</span>
+                <div class="legend-color-map" id="legend-map-3" style="background: #10b981;"></div>
+                <span id="legend-map-3-text">Medium</span>
+            </div>
+            <div class="legend-item-map" id="legend-item-4" style="display: none;">
+                <div class="legend-color-map" id="legend-map-4" style="background: #6ee7b7;"></div>
+                <span id="legend-map-4-text">Medium-Low</span>
             </div>
             <div class="legend-item-map">
-                <div class="legend-color-map" id="legend-map-low" style="background: #6ee7b7;"></div>
-                <span id="legend-map-low-text">Low</span>
+                <div class="legend-color-map" id="legend-map-5" style="background: #6ee7b7;"></div>
+                <span id="legend-map-5-text">Low</span>
+            </div>
+        </div>
+
+        <!-- SIMD Background Legend -->
+        <div class="map-legend" id="simd-legend" style="display: none; bottom: 250px;">
+            <div class="map-legend-title">SIMD Deprivation</div>
+            <div class="legend-item-map">
+                <div class="legend-color-map" style="background: #ef4444;"></div>
+                <span>Most Deprived (1-2)</span>
+            </div>
+            <div class="legend-item-map">
+                <div class="legend-color-map" style="background: #f97316;"></div>
+                <span>High (3-4)</span>
+            </div>
+            <div class="legend-item-map">
+                <div class="legend-color-map" style="background: #fbbf24;"></div>
+                <span>Medium (5-6)</span>
+            </div>
+            <div class="legend-item-map">
+                <div class="legend-color-map" style="background: #84cc16;"></div>
+                <span>Low (7-8)</span>
+            </div>
+            <div class="legend-item-map">
+                <div class="legend-color-map" style="background: #22c55e;"></div>
+                <span>Least Deprived (9-10)</span>
             </div>
         </div>
     </div>
@@ -1228,9 +1367,9 @@
                 <h1>Dead Space?</h1>
                 <p class="subtitle">What graveyards tell us about carbon and communities</p>
                 <div style="display: flex; justify-content: space-between; gap: 30px; margin-top: 40px; width: 100%; padding: 0 40px;">
-                    <img src="/dev/group1project/static/report_images/image3.jpg" alt="Graveyard 1" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
-                    <img src="/dev/group1project/static/report_images/image1.jpg" alt="Graveyard 2" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
-                    <img src="/dev/group1project/static/report_images/image7.jpg" alt="Graveyard 3" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
+                    <img src="/dev/group1project/static/report_images/image3.jpg" alt="Graveyard 1" loading="lazy" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
+                    <img src="/dev/group1project/static/report_images/image1.jpg" alt="Graveyard 2" loading="lazy" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
+                    <img src="/dev/group1project/static/report_images/image7.jpg" alt="Graveyard 3" loading="lazy" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
                 </div>
             </div>
         </section>
@@ -1464,22 +1603,21 @@
         <!-- Footer -->
         <footer class="report-footer">
             <div class="report-footer-inner">
+                <!-- Logo Left -->
                 <div class="report-footer-brand">
-                    <img src="/dev/group1project/static/report_images/University_of_Edinburgh_Coat_of_Arm.png" alt="University of Edinburgh">
-                    <div class="report-footer-info">
-                        <h4>School of GeoSciences</h4>
-                        <p>University of Edinburgh</p>
-                    </div>
+                    <img src="/dev/group1project/static/report_images/University_of_Edinburgh_Coat_of_Arm.png" alt="University of Edinburgh" style="height: 250px;">
                 </div>
-                <div class="report-footer-form">
-                    <h4>Send Us Your Feedback</h4>
-                    <form id="feedbackForm" onsubmit="submitFeedback(event)">
-                        <input type="text" name="name" placeholder="Your Name" required>
-                        <input type="email" name="email" placeholder="Your Email" required>
-                        <textarea name="message" placeholder="Your suggestions or comments..." required></textarea>
-                        <button type="submit">Submit Feedback</button>
-                    </form>
-                    <p id="feedbackMessage" style="margin-top: 10px; font-size: 13px; display: none;"></p>
+                <!-- Content Right -->
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                    <div style="font-size: 12px; opacity: 0.7; text-align: right;">
+                        &copy; 2025 University of Edinburgh. All rights reserved.<br>
+                        <span style="font-size: 10px;">Data: Scottish Government SIMD 2020, Scottish Remote Sensing Portal LiDAR, ESA Sentinel-2</span>
+                    </div>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <a href="https://github.com/langxiao323" target="_blank" style="color: #fff; font-size: 20px; opacity: 0.7; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" title="View Project on GitHub"><i class="fab fa-github"></i></a>
+                        <a href="mailto:s2835812@ed.ac.uk" style="color: #fff; font-size: 20px; opacity: 0.7; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" title="Contact Us"><i class="fas fa-envelope"></i></a>
+                        <span style="font-size: 13px; opacity: 0.8; margin-left: 10px;">Developed by <strong>Group 1</strong> | MSc GIS 2025</span>
+                    </div>
                 </div>
             </div>
         </footer>
@@ -1564,6 +1702,16 @@
             }, 3000);
         }
 
+        // Back to Top Button visibility
+        window.addEventListener('scroll', function() {
+            var backToTop = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
         var map = L.map('map', {
             zoomControl: false
         }).setView([55.9533, -3.1883], 12);
@@ -1576,6 +1724,53 @@
         var currentMode = 'carbon';
         var selectedFeature = null;
         var routingControl = null;
+        var simdLayer = null;
+        var showSIMDBackground = false;
+
+        // SIMD background layer style
+        function getSIMDStyle(feature) {
+            var rank = feature.properties.SIMD_Rank;
+            var decile = feature.properties.SIMD_Decile;
+            var color = '#94a3b8';
+
+            // Color by decile (1=most deprived, 10=least deprived)
+            if (decile <= 2) color = '#ef4444'; // Red - most deprived
+            else if (decile <= 4) color = '#f97316'; // Orange
+            else if (decile <= 6) color = '#fbbf24'; // Yellow
+            else if (decile <= 8) color = '#84cc16'; // Light green
+            else color = '#22c55e'; // Green - least deprived
+
+            return {
+                fillColor: color,
+                weight: 0.5,
+                opacity: 0.5,
+                color: '#333',
+                fillOpacity: 0.4
+            };
+        }
+
+        // Toggle SIMD background layer
+        function toggleSIMDBackground() {
+            showSIMDBackground = !showSIMDBackground;
+            if (simdLayer) {
+                if (showSIMDBackground) {
+                    simdLayer.addTo(map);
+                    simdLayer.bringToBack();
+                } else {
+                    map.removeLayer(simdLayer);
+                }
+            }
+            // Update button style
+            var btn = document.getElementById('simd-bg-btn');
+            if (btn) {
+                btn.style.background = showSIMDBackground ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.2)';
+            }
+            // Toggle SIMD legend visibility
+            var simdLegend = document.getElementById('simd-legend');
+            if (simdLegend) {
+                simdLegend.style.display = showSIMDBackground ? 'block' : 'none';
+            }
+        }
 
         function getStyle(feature) {
             var p = feature.properties;
@@ -1618,10 +1813,12 @@
                 else if (canopy >= 30) color = '#10b981'; // Medium green
                 else color = '#bef264'; // Yellow-green
             } else if (currentMode === 'simd') {
-                // SIMD: orange to red (lower = more deprived)
-                if (p.SIMD <= 3) color = '#ef4444';
-                else if (p.SIMD <= 7) color = '#f97316';
-                else color = '#fb923c';
+                // SIMD: 5-level classification matching background layer
+                if (p.SIMD <= 2) color = '#ef4444'; // Red - most deprived
+                else if (p.SIMD <= 4) color = '#f97316'; // Orange
+                else if (p.SIMD <= 6) color = '#fbbf24'; // Yellow
+                else if (p.SIMD <= 8) color = '#84cc16'; // Light green
+                else color = '#22c55e'; // Green - least deprived
             } else if (currentMode === 'strata') {
                 // Strata: yellow-green to dark green
                 if (p.Strata === 'High') color = '#065f46'; // Very dark green
@@ -1640,62 +1837,66 @@
         }
 
         function updateLegend() {
+            // Hide extra legend items by default
+            document.getElementById('legend-item-2').style.display = 'none';
+            document.getElementById('legend-item-4').style.display = 'none';
+
             if (currentMode === 'carbon') {
-                // Carbon per hectare: yellow-green to very dark green
-                document.getElementById('legend-map-high').style.background = '#065f46'; // Very dark green
-                document.getElementById('legend-map-medium').style.background = '#10b981'; // Medium green
-                document.getElementById('legend-map-low').style.background = '#bef264'; // Yellow-green
-                document.getElementById('legend-map-high-text').textContent = '>120 t/ha';
-                document.getElementById('legend-map-medium-text').textContent = '40-120 t/ha';
-                document.getElementById('legend-map-low-text').textContent = '<40 t/ha';
+                document.getElementById('legend-map-1').style.background = '#065f46';
+                document.getElementById('legend-map-3').style.background = '#10b981';
+                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-map-1-text').textContent = '>120 t/ha';
+                document.getElementById('legend-map-3-text').textContent = '40-120 t/ha';
+                document.getElementById('legend-map-5-text').textContent = '<40 t/ha';
             } else if (currentMode === 'agb') {
-                // AGB Total: yellow-green to dark green
-                document.getElementById('legend-map-high').style.background = '#065f46';
-                document.getElementById('legend-map-medium').style.background = '#10b981';
-                document.getElementById('legend-map-low').style.background = '#bef264';
-                document.getElementById('legend-map-high-text').textContent = '>100 t';
-                document.getElementById('legend-map-medium-text').textContent = '20-100 t';
-                document.getElementById('legend-map-low-text').textContent = '<20 t';
+                document.getElementById('legend-map-1').style.background = '#065f46';
+                document.getElementById('legend-map-3').style.background = '#10b981';
+                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-map-1-text').textContent = '>100 t';
+                document.getElementById('legend-map-3-text').textContent = '20-100 t';
+                document.getElementById('legend-map-5-text').textContent = '<20 t';
             } else if (currentMode === 'edi') {
-                // EDI: actual range 0-45, yellow-green to dark green
-                document.getElementById('legend-map-high').style.background = '#065f46';
-                document.getElementById('legend-map-medium').style.background = '#10b981';
-                document.getElementById('legend-map-low').style.background = '#bef264';
-                document.getElementById('legend-map-high-text').textContent = 'High (>30)';
-                document.getElementById('legend-map-medium-text').textContent = 'Medium (10-30)';
-                document.getElementById('legend-map-low-text').textContent = 'Low (<10)';
+                document.getElementById('legend-map-1').style.background = '#065f46';
+                document.getElementById('legend-map-3').style.background = '#10b981';
+                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-map-1-text').textContent = 'High (>30)';
+                document.getElementById('legend-map-3-text').textContent = 'Medium (10-30)';
+                document.getElementById('legend-map-5-text').textContent = 'Low (<10)';
             } else if (currentMode === 'ndvi') {
-                // NDVI: yellow to dark green
-                document.getElementById('legend-map-high').style.background = '#065f46';
-                document.getElementById('legend-map-medium').style.background = '#10b981';
-                document.getElementById('legend-map-low').style.background = '#fbbf24'; // Yellow
-                document.getElementById('legend-map-high-text').textContent = 'High (>0.4)';
-                document.getElementById('legend-map-medium-text').textContent = 'Medium (0.2-0.4)';
-                document.getElementById('legend-map-low-text').textContent = 'Low (<0.2)';
+                document.getElementById('legend-map-1').style.background = '#065f46';
+                document.getElementById('legend-map-3').style.background = '#10b981';
+                document.getElementById('legend-map-5').style.background = '#fbbf24';
+                document.getElementById('legend-map-1-text').textContent = 'High (>0.4)';
+                document.getElementById('legend-map-3-text').textContent = 'Medium (0.2-0.4)';
+                document.getElementById('legend-map-5-text').textContent = 'Low (<0.2)';
             } else if (currentMode === 'canopy') {
-                // Canopy Percentage: yellow-green to dark green
-                document.getElementById('legend-map-high').style.background = '#065f46';
-                document.getElementById('legend-map-medium').style.background = '#10b981';
-                document.getElementById('legend-map-low').style.background = '#bef264';
-                document.getElementById('legend-map-high-text').textContent = 'Dense (>70%)';
-                document.getElementById('legend-map-medium-text').textContent = 'Medium (30-70%)';
-                document.getElementById('legend-map-low-text').textContent = 'Sparse (<30%)';
+                document.getElementById('legend-map-1').style.background = '#065f46';
+                document.getElementById('legend-map-3').style.background = '#10b981';
+                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-map-1-text').textContent = 'Dense (>70%)';
+                document.getElementById('legend-map-3-text').textContent = 'Medium (30-70%)';
+                document.getElementById('legend-map-5-text').textContent = 'Sparse (<30%)';
             } else if (currentMode === 'simd') {
-                // SIMD mode: orange to red
-                document.getElementById('legend-map-high').style.background = '#fb923c';
-                document.getElementById('legend-map-medium').style.background = '#f97316';
-                document.getElementById('legend-map-low').style.background = '#ef4444';
-                document.getElementById('legend-map-high-text').textContent = 'Least Deprived';
-                document.getElementById('legend-map-medium-text').textContent = 'Medium';
-                document.getElementById('legend-map-low-text').textContent = 'Most Deprived';
+                // SIMD mode: show all 5 legend items
+                document.getElementById('legend-item-2').style.display = 'flex';
+                document.getElementById('legend-item-4').style.display = 'flex';
+                document.getElementById('legend-map-1').style.background = '#22c55e';
+                document.getElementById('legend-map-2').style.background = '#84cc16';
+                document.getElementById('legend-map-3').style.background = '#fbbf24';
+                document.getElementById('legend-map-4').style.background = '#f97316';
+                document.getElementById('legend-map-5').style.background = '#ef4444';
+                document.getElementById('legend-map-1-text').textContent = 'Least Deprived (9-10)';
+                document.getElementById('legend-map-2-text').textContent = 'Low (7-8)';
+                document.getElementById('legend-map-3-text').textContent = 'Medium (5-6)';
+                document.getElementById('legend-map-4-text').textContent = 'High (3-4)';
+                document.getElementById('legend-map-5-text').textContent = 'Most Deprived (1-2)';
             } else if (currentMode === 'strata') {
-                // Strata: yellow-green to dark green
-                document.getElementById('legend-map-high').style.background = '#065f46';
-                document.getElementById('legend-map-medium').style.background = '#10b981';
-                document.getElementById('legend-map-low').style.background = '#bef264';
-                document.getElementById('legend-map-high-text').textContent = 'High';
-                document.getElementById('legend-map-medium-text').textContent = 'Medium';
-                document.getElementById('legend-map-low-text').textContent = 'Low';
+                document.getElementById('legend-map-1').style.background = '#065f46';
+                document.getElementById('legend-map-3').style.background = '#10b981';
+                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-map-1-text').textContent = 'High';
+                document.getElementById('legend-map-3-text').textContent = 'Medium';
+                document.getElementById('legend-map-5-text').textContent = 'Low';
             }
         }
 
@@ -1790,11 +1991,17 @@
             });
         }
 
+        // Flickr API key (free tier)
+        var FLICKR_API_KEY = '25506987f67f81e9a5ae6aa198fae3cf';
+
         function fetchWikiImage(name, imgElementId) {
             var cleanName = name.split('(')[0].trim();
             var searchTerm = cleanName + " Edinburgh cemetery";
             var searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${searchTerm}&format=json&origin=*`;
+            var imgElement = document.getElementById(imgElementId);
+            var imgContainer = imgElement ? imgElement.parentElement : null;
 
+            // Try Wikipedia first
             fetch(searchUrl)
                 .then(r => r.json())
                 .then(data => {
@@ -1811,11 +2018,37 @@
                     var pages = data.query.pages;
                     var pageId = Object.keys(pages)[0];
                     if (pages[pageId].thumbnail) {
-                        document.getElementById(imgElementId).src = pages[pageId].thumbnail.source;
+                        imgElement.src = pages[pageId].thumbnail.source;
+                    } else {
+                        // No Wikipedia image, try Flickr
+                        fetchFlickrImage(cleanName, imgElement, imgContainer);
                     }
                 })
                 .catch(e => {
-                    // �ؤ�G
+                    // Wikipedia failed, try Flickr
+                    fetchFlickrImage(cleanName, imgElement, imgContainer);
+                });
+        }
+
+        function fetchFlickrImage(searchTerm, imgElement, imgContainer) {
+            var flickrUrl = `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${FLICKR_API_KEY}&text=${encodeURIComponent(searchTerm + ' Edinburgh')}&sort=relevance&per_page=1&format=json&nojsoncallback=1`;
+
+            fetch(flickrUrl)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.photos && data.photos.photo && data.photos.photo.length > 0) {
+                        var photo = data.photos.photo[0];
+                        // Construct Flickr image URL
+                        var photoUrl = `https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.secret}_w.jpg`;
+                        imgElement.src = photoUrl;
+                    } else {
+                        // No Flickr image, hide container
+                        if (imgContainer) imgContainer.style.display = 'none';
+                    }
+                })
+                .catch(e => {
+                    // Flickr failed, hide container
+                    if (imgContainer) imgContainer.style.display = 'none';
                 });
         }
 
@@ -1985,8 +2218,55 @@
                     }
                 }).addTo(map);
 
+                // Add number labels to each graveyard
+                var labelIndex = 1;
+                geojsonLayer.eachLayer(function(layer) {
+                    if (layer.feature.properties.has_data) {
+                        var center = layer.getBounds().getCenter();
+                        var numberIcon = L.divIcon({
+                            className: 'graveyard-number-label',
+                            html: '<div class="number-marker">' + labelIndex + '</div>',
+                            iconSize: [24, 24],
+                            iconAnchor: [12, 12]
+                        });
+                        var marker = L.marker(center, {
+                            icon: numberIcon,
+                            interactive: true
+                        });
+                        marker.on('click', function() {
+                            map.flyToBounds(layer.getBounds(), {
+                                padding: [100, 100]
+                            });
+                            layer.fire('click');
+                        });
+                        marker.addTo(map);
+                        labelIndex++;
+                    }
+                });
+
                 // Render list
                 renderList();
+
+                // Load SIMD background layer
+                var simdApiPath = window.location.pathname.replace(/\/$/, '') + '/api/simd';
+                if (simdApiPath.startsWith('//')) simdApiPath = simdApiPath.substring(1);
+
+                fetch(simdApiPath)
+                    .then(response => response.json())
+                    .then(simdData => {
+                        simdLayer = L.geoJSON(simdData, {
+                            style: getSIMDStyle,
+                            onEachFeature: function(feature, layer) {
+                                layer.bindTooltip(
+                                    `<b>${feature.properties.Name}</b><br>SIMD Rank: ${feature.properties.SIMD_Rank}<br>Decile: ${feature.properties.SIMD_Decile}`, {
+                                        sticky: true
+                                    }
+                                );
+                            }
+                        });
+                        console.log('SIMD layer loaded with ' + simdData.features.length + ' areas');
+                    })
+                    .catch(err => console.error('Error loading SIMD data:', err));
 
                 // Hide loading
                 document.getElementById('loading').style.display = 'none';
@@ -2002,6 +2282,5 @@
         }).addTo(map);
     </script>
 </body>
-
 
 </html>

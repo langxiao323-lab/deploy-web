@@ -223,6 +223,19 @@ def index():
 def api_graveyards():
     return jsonify(fetch_enriched_data())
 
+@app.route("/api/simd")
+@app.route("/group1project/api/simd")
+@app.route("/dev/group1project/api/simd")
+@app.route("/~s2835812/group1project/api/simd")
+def api_simd():
+    simd_path = os.path.join(os.path.dirname(__file__), 'data', 'edinburgh_simd.json')
+    try:
+        with open(simd_path, 'r', encoding='utf-8') as f:
+            return jsonify(json.load(f))
+    except Exception as e:
+        print(f"Error loading SIMD data: {e}", file=sys.stderr)
+        return jsonify({"features": []})
+
 # Static files route for report images
 @app.route("/dev/group1project/static/<path:filename>")
 @app.route("/group1project/static/<path:filename>")
