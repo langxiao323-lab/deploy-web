@@ -2,7 +2,7 @@ import oracledb
 import json
 import os
 import sys
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, send_from_directory
 
 # --- Oracle Database Configuration ---
 ORACLE_USER = "s2835812"
@@ -10,6 +10,17 @@ ORACLE_PASSWORD = "252525"
 ORACLE_DSN = "172.16.108.21:1842/GLRNLIVE_PRMY.is.ed.ac.uk"
 
 app = Flask(__name__)
+
+# --- Name Mapping (GeoJSON name -> Database name) ---
+# Based on actual database names from 02_insert_data.sql
+NAME_MAPPING = {
+    "Liberton Churchyard": "Liberton Cemetery",
+    "St Mary's Ratho": "St Mary's Ratho",  # Apostrophe match
+    # Note: The following GeoJSON names have no database entries:
+    # - Mount Vernon Cemetery (closest by area: no unique match)
+    # - Colinton Cemetery (southern section)
+    # - Colinton Cemetery (northern section)
+}
 
 # --- Report Tags (from Report Table 2.1.10) ---
 REPORT_TAGS = {
@@ -75,17 +86,32 @@ def fetch_enriched_data():
         print(f"Loaded {len(db_data)} cemeteries from database", file=sys.stderr)
         print(f"Database cemetery names: {list(db_data.keys())[:5]}...", file=sys.stderr)
 
+        # Helper function to calculate polygon area from coordinates
+        def calc_polygon_area(coords):
+            n = len(coords)
+            area = 0
+            for i in range(n):
+                j = (i + 1) % n
+                area += coords[i][0] * coords[j][1]
+                area -= coords[j][0] * coords[i][1]
+            # Rough conversion to m2 (lat/lon to meters)
+            return abs(area) / 2 * 111319.5 * 111319.5 * 0.7
+
         # 3. Merge database data with GeoJSON
         matched_count = 0
-        unmatched_names = []
+        unmatched_features = []
+        used_db_names = set()
         
+        # First pass: match by name
         for feature in geojson_data['features']:
             props = feature['properties']
             site_name = props.get('name', '').strip()
             
-            # Match database data
-            matched = db_data.get(site_name)
+            # Match database data (try direct match first, then use mapping)
+            db_name = NAME_MAPPING.get(site_name, site_name)
+            matched = db_data.get(db_name)
             if matched:
+                used_db_names.add(db_name)
                 matched_count += 1
                 props.update({
                     "Strata": matched['Strata'],
@@ -93,26 +119,70 @@ def fetch_enriched_data():
                     "CarbonPerHectare": matched['CarbonPerHectare'],
                     "AGBTotal": matched['AGBTotal'],
                     "Canopy": matched['Canopy'],
-                    "EDI": matched['EDI'],  # 0-100 range
+                    "EDI": matched['EDI'],
                     "SIMD": matched['SIMD'],
                     "NDVI": matched['NDVI'],
                     "has_data": True
                 })
             else:
-                unmatched_names.append(site_name)
-                props.update({
-                    "Strata": "Unknown", 
-                    "CarbonPerHectare": 0,
-                    "AGBTotal": 0,
-                    "EDI": 0, 
-                    "SIMD": 0,
-                    "NDVI": 0,
-                    "Canopy": 0,
-                    "has_data": False
-                })
+                unmatched_features.append(feature)
 
             # Inject report tags
             props['ReportTags'] = REPORT_TAGS.get(site_name, [])
+        
+        # Second pass: match unmatched features by area
+        if unmatched_features:
+            # Get unused db entries
+            unused_db = {k: v for k, v in db_data.items() if k not in used_db_names}
+            
+            for feature in unmatched_features:
+                props = feature['properties']
+                site_name = props.get('name', '').strip()
+                
+                # Calculate GeoJSON polygon area
+                try:
+                    coords = feature['geometry']['coordinates'][0]
+                    geo_area = calc_polygon_area(coords)
+                except:
+                    geo_area = 0
+                
+                # Find closest area match in unused db entries
+                best_match = None
+                best_diff = float('inf')
+                for db_name, db_info in unused_db.items():
+                    diff = abs(db_info['Area'] - geo_area)
+                    if diff < best_diff:
+                        best_diff = diff
+                        best_match = (db_name, db_info)
+                
+                if best_match:
+                    db_name, matched = best_match
+                    used_db_names.add(db_name)
+                    del unused_db[db_name]
+                    matched_count += 1
+                    print(f"Area matched: {site_name} ({geo_area:.0f}m2) -> {db_name} ({matched['Area']:.0f}m2)", file=sys.stderr)
+                    props.update({
+                        "Strata": matched['Strata'],
+                        "Area": matched['Area'],
+                        "CarbonPerHectare": matched['CarbonPerHectare'],
+                        "AGBTotal": matched['AGBTotal'],
+                        "Canopy": matched['Canopy'],
+                        "EDI": matched['EDI'],
+                        "SIMD": matched['SIMD'],
+                        "NDVI": matched['NDVI'],
+                        "has_data": True
+                    })
+                else:
+                    props.update({
+                        "Strata": "Unknown", 
+                        "CarbonPerHectare": 0,
+                        "AGBTotal": 0,
+                        "EDI": 0, 
+                        "SIMD": 0,
+                        "NDVI": 0,
+                        "Canopy": 0,
+                        "has_data": False
+                    })
         
         print(f"Successfully matched {matched_count} out of {len(geojson_data['features'])} features", file=sys.stderr)
         
@@ -120,8 +190,8 @@ def fetch_enriched_data():
             print(f"WARNING: No matches found!", file=sys.stderr)
             print(f"Sample GeoJSON names: {[f['properties'].get('name') for f in geojson_data['features'][:3]]}", file=sys.stderr)
             print(f"Sample DB names: {list(db_data.keys())[:3]}", file=sys.stderr)
-        elif unmatched_names:
-            print(f"Unmatched names: {unmatched_names[:5]}", file=sys.stderr)
+        elif unmatched_features:
+            print(f"Unmatched names: {[f['properties'].get('name') for f in unmatched_features[:5]]}", file=sys.stderr)
 
         return geojson_data
 
@@ -152,6 +222,12 @@ def index():
 @app.route("/~s2835812/group1project/api/graveyards")
 def api_graveyards():
     return jsonify(fetch_enriched_data())
+
+# Static files route for report images
+@app.route("/dev/group1project/static/<path:filename>")
+@app.route("/group1project/static/<path:filename>")
+def serve_static(filename):
+    return send_from_directory('static', filename)
 
 if __name__ == "__main__":
     print(f"Starting Flask server on port 55429...", file=sys.stderr)
