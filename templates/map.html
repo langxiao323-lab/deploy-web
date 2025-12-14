@@ -76,8 +76,11 @@
         }
         
         #map {
-            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
             z-index: 1;
         }
         /* Loading Spinner */
@@ -649,6 +652,12 @@
         
         #map-page {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
         }
         
         #map-page.active {
@@ -666,16 +675,16 @@
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(45, 52, 54, 0.95);
+            background: rgba(16, 185, 129, 0.95);
             backdrop-filter: blur(10px);
             z-index: 1000;
-            padding: 0 20px;
+            padding: 0;
             transition: box-shadow 0.3s, background 0.3s;
         }
         
         .report-nav.scrolled {
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            background: rgba(30, 35, 38, 0.98);
+            background: rgba(16, 185, 129, 0.98);
         }
         /* Mobile Responsive */
         
@@ -701,6 +710,7 @@
         .report-nav-inner {
             max-width: 100%;
             margin: 0;
+            padding: 0 20px 0 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -721,6 +731,8 @@
         .report-logo-text {
             font-family: 'EB Garamond', serif;
             font-size: 18px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
         
         .report-nav-links {
@@ -729,15 +741,17 @@
         }
         
         .report-nav-links a {
-            color: rgba(255, 255, 255, 0.7);
+            color: #fff;
             text-decoration: none;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
             transition: color 0.3s;
         }
         
         .report-nav-links a:hover {
             color: #fff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
         }
         
         .report-nav-buttons {
@@ -1041,9 +1055,9 @@
         }
         
         .report-footer {
-            background: #636e72;
-            color: #fff;
-            padding: 15px 40px;
+            background: #a7f3d0;
+            color: #000;
+            padding: 10px 40px;
         }
         
         .report-footer-inner {
@@ -1107,7 +1121,8 @@
         }
         
         .report-footer-brand img {
-            height: 60px;
+            height: 80px !important;
+            min-height: 80px !important;
         }
         
         .report-footer-info h4 {
@@ -1195,6 +1210,77 @@
         <i class="fas fa-arrow-up"></i>
     </button>
 
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: #fff; border-radius: 16px; width: 90%; max-width: 700px; height: 85vh; position: relative; overflow: hidden;">
+            <div style="background: #10b981; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 18px;"><i class="fas fa-comment-dots" style="margin-right: 10px;"></i>Feedback Survey</h3>
+                <button onclick="closeFeedbackModal()" style="background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+            <iframe src="https://forms.office.com/e/pBS3p5L9Fc" style="width: 100%; height: calc(100% - 60px); border: none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        function openFeedbackModal() {
+            document.getElementById('feedbackModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        document.getElementById('feedbackModal').addEventListener('click', function(e) {
+            if (e.target === this) closeFeedbackModal();
+        });
+
+        function searchPageContent(query) {
+            if (!query || query.length < 2) {
+                clearHighlights();
+                return;
+            }
+            clearHighlights();
+            var sections = {
+                'introduction': '#report-intro',
+                'methods': '#report-methods',
+                'results': '#report-results',
+                'conclusions': '#report-conclusions',
+                'sources': '#report-sources',
+                'team': '#report-team',
+                'carbon': '#report-intro',
+                'deprivation': '#report-results',
+                'graveyard': '#report-intro',
+                'lidar': '#report-methods',
+                'ndvi': '#report-methods',
+                'simd': '#report-results'
+            };
+            var lowerQuery = query.toLowerCase();
+            for (var key in sections) {
+                if (key.includes(lowerQuery)) {
+                    var target = document.querySelector(sections[key]);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        target.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)';
+                        setTimeout(function() {
+                            target.style.boxShadow = '';
+                        }, 2000);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.report-section').forEach(function(el) {
+                el.style.boxShadow = '';
+            });
+        }
+    </script>
+
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loading">
         <div class="spinner"></div>
@@ -1272,19 +1358,12 @@
 
         <!-- Search Box -->
         <div class="search-box">
-            <input type="text" class="search-input" id="search-input" placeholder="Search graveyards..." oninput="filterList()">
+            <input type="text" class="search-input" id="search-input" placeholder="Name or Postcode (e.g. EH1 1QS)" oninput="filterList()">
         </div>
 
         <!-- List Container -->
         <div class="list-container" id="list"></div>
 
-        <!-- Simulator Panel -->
-        <div class="simulator" id="sim-panel" style="display:none;">
-            <div class="sim-title"><i class="fa-solid fa-tree"></i> Investment Simulator</div>
-            <div style="font-size:11px; margin-bottom:5px;">Increase Canopy by: <span id="sim-val" style="color:var(--neon-green)">0%</span></div>
-            <input type="range" min="0" max="50" value="0" oninput="updateSim(this.value)">
-            <div style="font-size:11px; color:#94a3b8; margin-top:5px;">Projected Carbon: <span id="sim-result">--</span></div>
-        </div>
     </div>
 
     <div id="map-page">
@@ -1350,13 +1429,19 @@
                     <img src="/dev/group1project/static/report_images/University_of_Edinburgh_Coat_of_Arm.png" alt="University of Edinburgh">
                     <span class="report-logo-text">Carbon Research</span>
                 </div>
+                <div style="position: relative;">
+                    <input type="text" id="navSearchInput" placeholder="Search content..." oninput="searchPageContent(this.value)" style="padding: 8px 35px 8px 12px; border: none; border-radius: 20px; font-size: 13px; width: 180px; background: rgba(255,255,255,0.9); color: #333;">
+                    <i class="fas fa-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 12px;"></i>
+                </div>
                 <div class="report-nav-links">
                     <a href="#report-intro">Introduction</a>
                     <a href="#report-methods">Methods</a>
                     <a href="#report-results">Results</a>
                     <a href="#report-conclusions">Conclusions</a>
+                    <a href="#report-sources">Sources</a>
                     <a href="#report-team">Team</a>
-                    <a href="#" onclick="switchPage('map'); return false;" style="color: var(--neon-blue);">Interactive Map</a>
+                    <a href="#" onclick="openFeedbackModal(); return false;" style="color: #fff; font-weight: 600;">Feedback</a>
+                    <a href="#" onclick="switchPage('map'); return false;" style="color: #000; font-weight: 700; margin-right: 20px;">Interactive Map</a>
                 </div>
             </div>
         </nav>
@@ -1374,39 +1459,39 @@
             </div>
         </section>
 
-        <!-- Key Findings -->
+        <!-- Research Questions -->
         <section id="report-intro" class="report-section" style="background: #fff;">
             <div class="report-container">
-                <h2 class="report-section-title">Key <span>Findings</span></h2>
+                <h2 class="report-section-title">Research <span>Questions</span></h2>
                 <div class="report-key-points">
                     <div class="report-key-point">
-                        <i class="fas fa-tree"></i>
-                        <h4>35 Graveyards</h4>
-                        <p>Public cemeteries examined across Edinburgh for carbon storage potential</p>
+                        <i class="fas fa-leaf"></i>
+                        <h4>Carbon Storage</h4>
+                        <p>What is the above-ground carbon storage of Edinburgh's graveyards?</p>
                     </div>
                     <div class="report-key-point">
-                        <i class="fas fa-chart-line"></i>
-                        <h4>Large Bias</h4>
-                        <p>Mean Error: 71.54 Mg/ha, exceeding UK woodland average</p>
+                        <i class="fas fa-balance-scale"></i>
+                        <h4>Environmental Deprivation</h4>
+                        <p>Can carbon storage inform a new measure of environmental deprivation?</p>
                     </div>
                     <div class="report-key-point">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <h4>Limited Overlap</h4>
-                        <p>Environmental and social deprivation measures show minimal alignment</p>
+                        <i class="fas fa-bullseye"></i>
+                        <h4>Priority Greenspaces</h4>
+                        <p>Can carbon stocks and environmental deprivation identify priority greenspaces for enhancement funds?</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Study Area -->
-        <section class="report-section">
+        <section class="report-section" style="background: #f1f3f5;">
             <div class="report-container">
+                <h2 class="report-section-title">Study <span>Area</span></h2>
                 <div class="report-content-card">
                     <div class="report-card-image">
                         <img src="/dev/group1project/static/report_images/image2.png" alt="Study Area">
                     </div>
                     <div class="report-card-content">
-                        <h3>Study Area</h3>
                         <p>Edinburgh's graveyards represent a unique yet understudied subset of greenspaces with great potential as carbon vaults.</p>
                         <ul>
                             <li>35 publicly accessible graveyards examined</li>
@@ -1434,9 +1519,11 @@
                             <li>Sentinel-2 NDVI for vegetation greenness</li>
                         </ul>
                     </div>
-                    <div style="display: flex; gap: 20px; padding: 0 30px 30px;">
-                        <img src="/dev/group1project/static/report_images/image1.jpg" alt="Fieldwork" style="width: 50%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                        <img src="/dev/group1project/static/report_images/image3.jpg" alt="Fieldwork 2" style="width: 50%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                    <p style="padding: 0 30px 15px; color: #636e72; font-size: 14px; text-align: center;">Vegetation maps used to qualitatively class graveyards as low, medium and high tree cover. Three sites were chosen to represent each class.</p>
+                    <div style="display: flex; justify-content: space-evenly; align-items: flex-start; padding: 0 30px 30px;">
+                        <img src="/dev/group1project/static/report_images/image4.png" alt="Low tree cover" style="width: 30%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                        <img src="/dev/group1project/static/report_images/image5.png" alt="Medium tree cover" style="width: 30%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                        <img src="/dev/group1project/static/report_images/image8.png" alt="High tree cover" style="width: 30%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
                     </div>
                 </div>
                 <div class="report-stats">
@@ -1460,23 +1547,40 @@
             </div>
         </section>
 
-        <!-- Results -->
         <section id="report-results" class="report-section" style="background: #fff;">
             <div class="report-container">
                 <h2 class="report-section-title">Research <span>Results</span></h2>
-                <div class="report-content-card">
-                    <div class="report-card-image">
-                        <img src="/dev/group1project/static/report_images/image12.png" alt="Carbon Estimation" style="cursor: pointer;" onclick="openImageModal(this.src)">
-                    </div>
-                    <div class="report-card-content">
-                        <h3>Carbon Estimation Models</h3>
-                        <p>Scatterplots showing calibration and validation of LiDAR-derived carbon estimates. Both models show weak positive relationships between canopy height and carbon density.</p>
-                        <ul>
+                <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
+                    <div style="padding: 30px;">
+                        <h3 style="font-family: 'EB Garamond', serif; font-size: 28px; color: #2d3436; margin-bottom: 20px; text-align: center;">Carbon Estimation Models</h3>
+                        <p style="color: #2d3436; margin-bottom: 15px;">Scatterplots showing calibration and validation of LiDAR-derived carbon estimates. Both models show weak positive relationships between canopy height and carbon density.</p>
+                        <ul style="color: #2d3436; margin-bottom: 20px; padding-left: 25px;">
                             <li>Calibration Mean Error: 71.54 Mg/ha</li>
                             <li>Validation Mean Error: 68.23 Mg/ha</li>
                             <li>RMSE values exceed UK woodland average (53.6 Mg/ha)</li>
                             <li>Results indicate systematic overestimation</li>
                         </ul>
+                        <img src="/dev/group1project/static/report_images/image12.png" alt="Carbon Estimation" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 30px 30px;">
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                            <h4 style="color: #1e3a5f; margin-bottom: 10px;"><i class="fas fa-chart-line" style="margin-right: 8px;"></i>Calibration Model</h4>
+                            <p style="font-size: 14px; color: #636e72; margin-bottom: 10px;">Uses 70% of field data to establish relationship between canopy height and carbon density.</p>
+                            <ul style="font-size: 13px; color: #2d3436; padding-left: 20px;">
+                                <li>Mean Error: 71.54 Mg/ha</li>
+                                <li>R&sup2; = 0.24</li>
+                                <li>Weak positive correlation</li>
+                            </ul>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                            <h4 style="color: #0891b2; margin-bottom: 10px;"><i class="fas fa-check-circle" style="margin-right: 8px;"></i>Validation Model</h4>
+                            <p style="font-size: 14px; color: #636e72; margin-bottom: 10px;">Tests model accuracy using remaining 30% of field data.</p>
+                            <ul style="font-size: 13px; color: #2d3436; padding-left: 20px;">
+                                <li>Mean Error: 68.23 Mg/ha</li>
+                                <li>RMSE exceeds UK average (53.6 Mg/ha)</li>
+                                <li>Systematic overestimation</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="report-content-card reverse">
@@ -1521,7 +1625,7 @@
                         </ul>
                     </div>
                     <div style="display: flex; gap: 20px; padding: 0 30px 30px;">
-                        <img src="/dev/group1project/static/report_images/image19.jpg" alt="Beyond Carbon Storage" style="width: 50%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                        <img src="/dev/group1project/static/report_images/image21.jpg" alt="Beyond Carbon Storage" style="width: 50%; height: auto; object-fit: cover; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
                         <img src="/dev/group1project/static/report_images/image20.jpg" alt="Beyond Carbon Storage 2" style="width: 50%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
                     </div>
                 </div>
@@ -1531,7 +1635,25 @@
         <!-- Conclusions -->
         <section id="report-conclusions" class="report-section" style="background: #f1f3f5;">
             <div class="report-container">
-                <h2 class="report-section-title">Conclusions & <span>Recommendations</span></h2>
+                <h2 class="report-section-title">Key <span>Findings</span></h2>
+                <div class="report-key-points" style="margin-bottom: 60px;">
+                    <div class="report-key-point">
+                        <i class="fas fa-tree"></i>
+                        <h4>35 Graveyards</h4>
+                        <p>Public cemeteries examined across Edinburgh for carbon storage potential</p>
+                    </div>
+                    <div class="report-key-point">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>Large Bias</h4>
+                        <p>Mean Error: 71.54 Mg/ha, exceeding UK woodland average</p>
+                    </div>
+                    <div class="report-key-point">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h4>Limited Overlap</h4>
+                        <p>Environmental and social deprivation measures show minimal alignment</p>
+                    </div>
+                </div>
+                <h2 class="report-section-title">Recommendations</h2>
                 <p style="text-align: center; max-width: 700px; margin: 0 auto 40px; color: #2d3436;">
                     Carbon estimates cannot be considered reliable. EDI is not yet suitable for targeting priority areas. However, graveyards provide valuable benefits uncaptured by current metrics.
                 </p>
@@ -1561,8 +1683,83 @@
             </div>
         </section>
 
+        <!-- Sources -->
+        <section id="report-sources" class="report-section" style="background: #fff;">
+            <div class="report-container">
+                <h2 class="report-section-title">Data <span>Sources</span></h2>
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+                        <h4 style="color: #2d3436; margin-bottom: 15px; font-size: 18px;"><i class="fas fa-database" style="color: var(--neon-blue); margin-right: 10px;"></i>Remote Sensing Data</h4>
+                        <ul style="color: #636e72; line-height: 1.8;">
+                            <li><strong>LiDAR Data:</strong> Scottish Remote Sensing Portal - 0.5m resolution Canopy Height Model</li>
+                            <li><strong>Sentinel-2:</strong> ESA Copernicus - NDVI vegetation indices</li>
+                        </ul>
+                    </div>
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+                        <h4 style="color: #2d3436; margin-bottom: 15px; font-size: 18px;"><i class="fas fa-map" style="color: var(--neon-green); margin-right: 10px;"></i>Spatial Data</h4>
+                        <ul style="color: #636e72; line-height: 1.8;">
+                            <li><strong>SIMD 2020:</strong> Scottish Government - Scottish Index of Multiple Deprivation</li>
+                            <li><strong>Graveyard Boundaries:</strong> City of Edinburgh Council</li>
+                        </ul>
+                    </div>
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+                        <h4 style="color: #2d3436; margin-bottom: 15px; font-size: 18px;"><i class="fas fa-tree" style="color: #10b981; margin-right: 10px;"></i>Field Data</h4>
+                        <ul style="color: #636e72; line-height: 1.8;">
+                            <li><strong>Ground Truth:</strong> Field surveys conducted 5-8 November 2024</li>
+                            <li><strong>Allometric Equations:</strong> UK Forestry Commission biomass models</li>
+                        </ul>
+                    </div>
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 30px;">
+                        <h4 style="color: #2d3436; margin-bottom: 15px; font-size: 18px;"><i class="fas fa-book" style="color: #8b5cf6; margin-right: 10px;"></i>References</h4>
+                        <ul style="color: #636e72; line-height: 1.8; font-size: 13px; list-style: none; padding-left: 0; max-height: 400px; overflow-y: auto;">
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Anselin, L., 1995. Local indicators of spatial association - LISA. <em>Geographical Analysis</em>, 27(2): 93-115.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Brede, B., Lau, A., Bartholomeus, H.M. and Kooistra, L., 2017. Comparing RIEGL RiCOPTER UAV LiDAR derived canopy height and DBH with terrestrial LiDAR. <em>Sensors</em>, 17(10): 2371.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Broadmeadow, M. and Matthews, R., 2003. Forests, carbon and climate change: the UK contribution.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Calders, K., Armston, J., Newnham, G., Herold, M. and Goodwin, N., 2014. Implications of sensor configuration and topography on vertical plant profiles derived from terrestrial LiDAR. <em>Agricultural and Forest Meteorology</em>,
+                                194: 104-117.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Calders, K., Newnham, G., Burt, A., Murphy, S., Raumonen, P., Herold, M., Culvenor, D., Avitabile, V., Disney, M., Armston, J. and Kaasalainen, M., 2015. Nondestructive estimates of above-ground biomass using terrestrial laser
+                                scanning. <em>Methods in Ecology and Evolution</em>, 6(2): 198-208.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Calders, K., Adams, J., Armston, J., et al., 2020. Terrestrial laser scanning in forest ecology: Expanding the horizon. <em>Remote Sensing of Environment</em>, 251: 112102.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Chen, G., Singh, K.K., Lopez, J. and Zhou, Y., 2020. Tree canopy cover and carbon density are different proxy indicators for assessing the relationship between forest structure and urban socio-ecological conditions. <em>Ecological Indicators</em>,
+                                113: 106279.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC), 2021. 2030 Climate Strategy: Delivering a net zero, climate ready Edinburgh.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC), 2023. Culture and Communities Committee: Edinburgh Cemetery Tour Registration Scheme - Update.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC), 2024. City Plan 2030: Written Statement.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC) Forestry Service, 2023. Trees in the City.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC), 2014. Trees in the City: Trees and Woodlands Action Plan.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Davies, Z., Edmondson, J., Heinemeyer, A., Leake, J. and Gaston, K., 2011. Mapping an urban ecosystem service: quantifying above-ground carbon storage at a city-wide scale. <em>Journal of Applied Ecology</em>, 48(5): 1125-1134.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Disney, M., Burt, A., Calders, K., Schaaf, C. and Stovall, A., 2019. Innovations in ground and airborne technologies as reference and for training and validation: terrestrial laser scanning (TLS). <em>Surveys in Geophysics</em>,
+                                40(4): 937-958.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Doick, K., Handley, P., Ashwood, F., et al., 2017. Valuing Edinburgh's Urban Trees: An update to the 2011 i-Tree Eco survey. Forest Research: Farnham.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Forrester, D., Tachauer, I., Annighoefer, P., et al., 2017. Generalized biomass and leaf area allometric equations for European tree species. <em>Forest Ecology and Management</em>, 396: 160-175.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Ganz, S., Kaeber, Y. and Adler, P., 2019. Measuring Tree Height with Remote Sensing - A Comparison of Photogrammetric and LiDAR Data with Different Field Measurements. <em>Forests</em>, 10(8): 694.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Hunka, N., May, P., Babcock, C., et al., 2025. A geostatistical approach to enhancing national forest biomass assessments with Earth Observation. <em>Remote Sensing of Environment</em>, 318: 114557.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">IPCC, 2003. IPCC Good Practice Guidance for Land Use, Land-Use Change and Forestry (GPG-LULUCF).</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Junttila, V., Finley, A.O., Bradford, J.B. and Kauranne, T., 2013. Strategies for minimizing sample size for use in airborne LiDAR-based forest inventory. <em>Forest Ecology and Management</em>, 292: 75-85.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Lloyd, C., 2010. Spatial data analysis: an introduction for GIS users. Oxford University Press: Oxford.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Mildrexler, D.J., Berner, L.T., Law, B.E., Birdsey, R.A. and Moomaw, W.R., 2020. Large Trees Dominate Carbon Storage in Forests East of the Cascade Crest. <em>Frontiers in Forests and Global Change</em>, 3.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Muukkonen, P., 2007. Generalized allometric volume and biomass equations for some tree species in Europe. <em>European Journal of Forest Research</em>, 126: 157-166.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">NBN Atlas Scotland, 2018. Search for records | NBN Atlas Scotland.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Pearce, J., Richardson, E., Mitchell, R. and Shortt, N., 2010. Environmental justice and health: the implications of the socio-spatial distribution of multiple environmental deprivation. <em>Transactions of the Institute of British Geographers</em>,
+                                35(4): 522-539.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Pearce, J., Richardson, E., Mitchell, R. and Shortt, N., 2011. Environmental justice and health: A study of multiple environmental deprivation and geographical inequalities in health in New Zealand. <em>Social Science and Medicine</em>,
+                                73(3): 410-420.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Takagi, K., Yone, Y., Takahashi, H., et al., 2015. Forest biomass and volume estimation using airborne LiDAR in a cool-temperate forest of northern Hokkaido, Japan. <em>Ecological Informatics</em>, 26: 54-60.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Tobler, W.R., 1970. A computer movie simulating urban growth in the Detroit region. <em>Economic Geography</em>, 46(1): 234-240.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Tucker, C., 1979. Red and photographic infrared linear combination for monitoring green vegetation. <em>Remote Sensing of Environment</em>, 8: 127-150.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">UK Civil Aviation Authority (CAA), 2024. The Drone and Model Aircraft Code.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">UNESCO, 2011. Old and New Towns of Edinburgh.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Wilkes, P., Disney, M., Vicari, M., Calders, K. and Burt, A., 2018. Estimating urban above ground biomass with multi-scale LiDAR. <em>Carbon Balance and Management</em>, 13: 10.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Zhang, J., de Gier, A., Xing, Y. and Sohn, G., 2011. Full waveform-based analysis for forest type information derivation from large footprint spaceborne lidar data. <em>Photogrammetric Engineering and Remote Sensing</em>, 77(3):
+                                281-290.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
         <!-- Team -->
-        <section id="report-team" class="report-section" style="background: #fff;">
+        <section id="report-team" class="report-section" style="background: #f1f3f5;">
             <div class="report-container">
                 <h2 class="report-section-title">Research <span>Team</span></h2>
                 <div class="report-team-grid">
@@ -1603,12 +1800,8 @@
         <!-- Footer -->
         <footer class="report-footer">
             <div class="report-footer-inner">
-                <!-- Logo Left -->
-                <div class="report-footer-brand">
-                    <img src="/dev/group1project/static/report_images/University_of_Edinburgh_Coat_of_Arm.png" alt="University of Edinburgh" style="height: 250px;">
-                </div>
                 <!-- Content Right -->
-                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; width: 100%;">
                     <div style="font-size: 12px; opacity: 0.7; text-align: right;">
                         &copy; 2025 University of Edinburgh. All rights reserved.<br>
                         <span style="font-size: 10px;">Data: Scottish Government SIMD 2020, Scottish Remote Sensing Portal LiDAR, ESA Sentinel-2</span>
@@ -1712,6 +1905,13 @@
             }
         });
 
+        // Handle window resize for map
+        window.addEventListener('resize', function() {
+            if (typeof map !== 'undefined' && document.getElementById('map-page').classList.contains('active')) {
+                map.invalidateSize();
+            }
+        });
+
         var map = L.map('map', {
             zoomControl: false
         }).setView([55.9533, -3.1883], 12);
@@ -1778,40 +1978,40 @@
             var opacity = 0.5;
 
             if (currentMode === 'carbon') {
-                // Carbon per hectare: yellow-green to dark green (high contrast)
+                // Carbon per hectare: high contrast color scheme
                 var c = p.CarbonPerHectare || 0;
-                if (c > 120) color = '#065f46'; // Very dark green
-                else if (c > 80) color = '#059669'; // Dark green
-                else if (c > 40) color = '#10b981'; // Medium green
-                else color = '#bef264'; // Yellow-green (very visible)
+                if (c > 120) color = '#1e3a5f'; // Dark blue
+                else if (c > 80) color = '#0891b2'; // Cyan
+                else if (c > 40) color = '#34d399'; // Bright green
+                else color = '#fbbf24'; // Yellow
             } else if (currentMode === 'agb') {
-                // AGB Total: yellow-green to dark green
+                // AGB Total: high contrast
                 var agb = p.AGBTotal || 0;
-                if (agb > 100) color = '#065f46'; // Very dark green
-                else if (agb > 50) color = '#059669'; // Dark green
-                else if (agb > 20) color = '#10b981'; // Medium green
-                else color = '#bef264'; // Yellow-green
+                if (agb > 100) color = '#1e3a5f'; // Dark blue
+                else if (agb > 50) color = '#0891b2'; // Cyan
+                else if (agb > 20) color = '#34d399'; // Bright green
+                else color = '#fbbf24'; // Yellow
             } else if (currentMode === 'edi') {
-                // EDI: 0-45 range (actual data range), yellow-green to dark green
+                // EDI: 0-45 range, high contrast
                 var edi = p.EDI || 0;
-                if (edi >= 30) color = '#065f46'; // Very dark green (high EDI)
-                else if (edi >= 20) color = '#059669'; // Dark green
-                else if (edi >= 10) color = '#10b981'; // Medium green
-                else color = '#bef264'; // Yellow-green (low EDI)
+                if (edi >= 30) color = '#1e3a5f'; // Dark blue (high EDI)
+                else if (edi >= 20) color = '#0891b2'; // Cyan
+                else if (edi >= 10) color = '#34d399'; // Bright green
+                else color = '#fbbf24'; // Yellow (low EDI)
             } else if (currentMode === 'ndvi') {
-                // NDVI: 0-1 range, yellow to dark green
+                // NDVI: 0-1 range, high contrast
                 var ndvi = p.NDVI || 0;
-                if (ndvi >= 0.4) color = '#065f46'; // Very dark green
-                else if (ndvi >= 0.3) color = '#059669'; // Dark green
-                else if (ndvi >= 0.2) color = '#10b981'; // Medium green
-                else color = '#fbbf24'; // Yellow (low vegetation)
+                if (ndvi >= 0.4) color = '#1e3a5f'; // Dark blue
+                else if (ndvi >= 0.3) color = '#0891b2'; // Cyan
+                else if (ndvi >= 0.2) color = '#34d399'; // Bright green
+                else color = '#fbbf24'; // Yellow
             } else if (currentMode === 'canopy') {
-                // Canopy Percentage: 0-100%, yellow-green to dark green
+                // Canopy Percentage: high contrast
                 var canopy = p.Canopy || 0;
-                if (canopy >= 70) color = '#065f46'; // Very dark green
-                else if (canopy >= 50) color = '#059669'; // Dark green
-                else if (canopy >= 30) color = '#10b981'; // Medium green
-                else color = '#bef264'; // Yellow-green
+                if (canopy >= 70) color = '#1e3a5f'; // Dark blue
+                else if (canopy >= 50) color = '#0891b2'; // Cyan
+                else if (canopy >= 30) color = '#34d399'; // Bright green
+                else color = '#fbbf24'; // Yellow
             } else if (currentMode === 'simd') {
                 // SIMD: 5-level classification matching background layer
                 if (p.SIMD <= 2) color = '#ef4444'; // Red - most deprived
@@ -1820,10 +2020,10 @@
                 else if (p.SIMD <= 8) color = '#84cc16'; // Light green
                 else color = '#22c55e'; // Green - least deprived
             } else if (currentMode === 'strata') {
-                // Strata: yellow-green to dark green
-                if (p.Strata === 'High') color = '#065f46'; // Very dark green
-                else if (p.Strata === 'Medium') color = '#10b981'; // Medium green
-                else color = '#bef264'; // Yellow-green
+                // Strata: high contrast
+                if (p.Strata === 'High') color = '#1e3a5f'; // Dark blue
+                else if (p.Strata === 'Medium') color = '#34d399'; // Bright green
+                else color = '#fbbf24'; // Yellow
             }
 
             return {
@@ -1842,39 +2042,54 @@
             document.getElementById('legend-item-4').style.display = 'none';
 
             if (currentMode === 'carbon') {
-                document.getElementById('legend-map-1').style.background = '#065f46';
-                document.getElementById('legend-map-3').style.background = '#10b981';
-                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-item-2').style.display = 'flex';
+                document.getElementById('legend-map-1').style.background = '#1e3a5f';
+                document.getElementById('legend-map-2').style.background = '#0891b2';
+                document.getElementById('legend-map-3').style.background = '#34d399';
+                document.getElementById('legend-map-5').style.background = '#fbbf24';
                 document.getElementById('legend-map-1-text').textContent = '>120 t/ha';
-                document.getElementById('legend-map-3-text').textContent = '40-120 t/ha';
+                document.getElementById('legend-map-2-text').textContent = '80-120 t/ha';
+                document.getElementById('legend-map-3-text').textContent = '40-80 t/ha';
                 document.getElementById('legend-map-5-text').textContent = '<40 t/ha';
             } else if (currentMode === 'agb') {
-                document.getElementById('legend-map-1').style.background = '#065f46';
-                document.getElementById('legend-map-3').style.background = '#10b981';
-                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-item-2').style.display = 'flex';
+                document.getElementById('legend-map-1').style.background = '#1e3a5f';
+                document.getElementById('legend-map-2').style.background = '#0891b2';
+                document.getElementById('legend-map-3').style.background = '#34d399';
+                document.getElementById('legend-map-5').style.background = '#fbbf24';
                 document.getElementById('legend-map-1-text').textContent = '>100 t';
-                document.getElementById('legend-map-3-text').textContent = '20-100 t';
+                document.getElementById('legend-map-2-text').textContent = '50-100 t';
+                document.getElementById('legend-map-3-text').textContent = '20-50 t';
                 document.getElementById('legend-map-5-text').textContent = '<20 t';
             } else if (currentMode === 'edi') {
-                document.getElementById('legend-map-1').style.background = '#065f46';
-                document.getElementById('legend-map-3').style.background = '#10b981';
-                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-item-2').style.display = 'flex';
+                document.getElementById('legend-map-1').style.background = '#1e3a5f';
+                document.getElementById('legend-map-2').style.background = '#0891b2';
+                document.getElementById('legend-map-3').style.background = '#34d399';
+                document.getElementById('legend-map-5').style.background = '#fbbf24';
                 document.getElementById('legend-map-1-text').textContent = 'High (>30)';
-                document.getElementById('legend-map-3-text').textContent = 'Medium (10-30)';
+                document.getElementById('legend-map-2-text').textContent = 'Med-High (20-30)';
+                document.getElementById('legend-map-3-text').textContent = 'Medium (10-20)';
                 document.getElementById('legend-map-5-text').textContent = 'Low (<10)';
             } else if (currentMode === 'ndvi') {
-                document.getElementById('legend-map-1').style.background = '#065f46';
-                document.getElementById('legend-map-3').style.background = '#10b981';
+                document.getElementById('legend-item-2').style.display = 'flex';
+                document.getElementById('legend-map-1').style.background = '#1e3a5f';
+                document.getElementById('legend-map-2').style.background = '#0891b2';
+                document.getElementById('legend-map-3').style.background = '#34d399';
                 document.getElementById('legend-map-5').style.background = '#fbbf24';
                 document.getElementById('legend-map-1-text').textContent = 'High (>0.4)';
-                document.getElementById('legend-map-3-text').textContent = 'Medium (0.2-0.4)';
+                document.getElementById('legend-map-2-text').textContent = 'Med-High (0.3-0.4)';
+                document.getElementById('legend-map-3-text').textContent = 'Medium (0.2-0.3)';
                 document.getElementById('legend-map-5-text').textContent = 'Low (<0.2)';
             } else if (currentMode === 'canopy') {
-                document.getElementById('legend-map-1').style.background = '#065f46';
-                document.getElementById('legend-map-3').style.background = '#10b981';
-                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-item-2').style.display = 'flex';
+                document.getElementById('legend-map-1').style.background = '#1e3a5f';
+                document.getElementById('legend-map-2').style.background = '#0891b2';
+                document.getElementById('legend-map-3').style.background = '#34d399';
+                document.getElementById('legend-map-5').style.background = '#fbbf24';
                 document.getElementById('legend-map-1-text').textContent = 'Dense (>70%)';
-                document.getElementById('legend-map-3-text').textContent = 'Medium (30-70%)';
+                document.getElementById('legend-map-2-text').textContent = 'Med-Dense (50-70%)';
+                document.getElementById('legend-map-3-text').textContent = 'Medium (30-50%)';
                 document.getElementById('legend-map-5-text').textContent = 'Sparse (<30%)';
             } else if (currentMode === 'simd') {
                 // SIMD mode: show all 5 legend items
@@ -1891,9 +2106,9 @@
                 document.getElementById('legend-map-4-text').textContent = 'High (3-4)';
                 document.getElementById('legend-map-5-text').textContent = 'Most Deprived (1-2)';
             } else if (currentMode === 'strata') {
-                document.getElementById('legend-map-1').style.background = '#065f46';
-                document.getElementById('legend-map-3').style.background = '#10b981';
-                document.getElementById('legend-map-5').style.background = '#bef264';
+                document.getElementById('legend-map-1').style.background = '#1e3a5f';
+                document.getElementById('legend-map-3').style.background = '#34d399';
+                document.getElementById('legend-map-5').style.background = '#fbbf24';
                 document.getElementById('legend-map-1-text').textContent = 'High';
                 document.getElementById('legend-map-3-text').textContent = 'Medium';
                 document.getElementById('legend-map-5-text').textContent = 'Low';
@@ -1973,17 +2188,45 @@
                 if ((p.ReportTags || []).some(t => t.includes('Highest'))) specialClass = 'highest-edi';
 
                 el.className = `list-item ${specialClass}`;
+
+                // Get centroid coordinates for distance calculation
+                var coords = f.geometry.coordinates;
+                var centLat = 0,
+                    centLon = 0;
+                if (f.geometry.type === 'Polygon') {
+                    coords[0].forEach(c => {
+                        centLon += c[0];
+                        centLat += c[1];
+                    });
+                    centLon /= coords[0].length;
+                    centLat /= coords[0].length;
+                } else if (f.geometry.type === 'MultiPolygon') {
+                    var total = 0;
+                    coords.forEach(poly => {
+                        poly[0].forEach(c => {
+                            centLon += c[0];
+                            centLat += c[1];
+                            total++;
+                        });
+                    });
+                    centLon /= total;
+                    centLat /= total;
+                }
+                el.setAttribute('data-lat', centLat);
+                el.setAttribute('data-lon', centLon);
+
                 el.innerHTML = `
                 <div class="item-header">
                     <span>${p.name}</span>
-                    <span style="color:${getStyle(f).fillColor}">${valueDisplay}</span>
+                    <span class="list-item-carbon" style="color:${getStyle(f).fillColor}">${valueDisplay}</span>
                 </div>
                 <div class="item-sub"><span>SIMD: ${p.SIMD || 'N/A'}</span>${tagsHtml}</div>
             `;
                 el.onclick = () => {
                     var layer = getLayerByFeature(f);
                     map.flyToBounds(layer.getBounds(), {
-                        padding: [100, 100]
+                        padding: [150, 150],
+                        maxZoom: 17
                     });
                     layer.fire('click');
                 };
@@ -2111,18 +2354,107 @@
             alert('Data exported successfully!');
         }
 
+        // Haversine distance calculation (km)
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            var R = 6371;
+            var dLat = (lat2 - lat1) * Math.PI / 180;
+            var dLon = (lon2 - lon1) * Math.PI / 180;
+            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // UK postcode regex
+        function isUKPostcode(str) {
+            var regex = /^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$/i;
+            return regex.test(str.trim());
+        }
+
         // Search/Filter list
         function filterList() {
-            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            var searchTerm = document.getElementById('search-input').value.trim();
             var items = document.querySelectorAll('.list-item');
+
+            // Check if it's a UK postcode
+            if (isUKPostcode(searchTerm)) {
+                searchByPostcode(searchTerm);
+                return;
+            }
+
+            // Normal text search
+            var lowerSearch = searchTerm.toLowerCase();
             items.forEach(item => {
                 var text = item.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
+                if (text.includes(lowerSearch)) {
                     item.style.display = 'block';
                 } else {
                     item.style.display = 'none';
                 }
             });
+        }
+
+        // Search by postcode - find graveyards within 5km
+        function searchByPostcode(postcode) {
+            var items = document.querySelectorAll('.list-item');
+            var searchInput = document.getElementById('search-input');
+            searchInput.style.background = 'rgba(14, 165, 233, 0.3)';
+
+            fetch('https://api.postcodes.io/postcodes/' + encodeURIComponent(postcode.replace(/\s/g, '')))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 200 && data.result) {
+                        var lat = data.result.latitude;
+                        var lon = data.result.longitude;
+                        var count = 0;
+
+                        items.forEach(item => {
+                            var itemLat = parseFloat(item.getAttribute('data-lat'));
+                            var itemLon = parseFloat(item.getAttribute('data-lon'));
+                            if (itemLat && itemLon) {
+                                var dist = haversineDistance(lat, lon, itemLat, itemLon);
+                                if (dist <= 5) {
+                                    item.style.display = 'block';
+                                    item.querySelector('.list-item-carbon').innerHTML = dist.toFixed(1) + ' km away';
+                                    count++;
+                                } else {
+                                    item.style.display = 'none';
+                                }
+                            }
+                        });
+
+                        searchInput.style.background = 'rgba(16, 185, 129, 0.3)';
+                        searchInput.placeholder = count + ' graveyards within 5km';
+
+                        // Center map on postcode location
+                        if (map) {
+                            map.setView([lat, lon], 13);
+                            L.marker([lat, lon], {
+                                icon: L.divIcon({
+                                    className: 'postcode-marker',
+                                    html: '<div style="background:#ef4444;color:#fff;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;"><i class="fas fa-map-marker-alt"></i> ' + postcode.toUpperCase() + '</div>',
+                                    iconSize: [100, 30],
+                                    iconAnchor: [50, 15]
+                                })
+                            }).addTo(map);
+                        }
+                    } else {
+                        searchInput.style.background = 'rgba(239, 68, 68, 0.3)';
+                        searchInput.placeholder = 'Invalid postcode';
+                    }
+                    setTimeout(() => {
+                        searchInput.style.background = '';
+                        searchInput.placeholder = 'Name or Postcode (e.g. EH1 1QS)';
+                    }, 3000);
+                })
+                .catch(err => {
+                    console.error('Postcode lookup error:', err);
+                    searchInput.style.background = 'rgba(239, 68, 68, 0.3)';
+                    setTimeout(() => {
+                        searchInput.style.background = '';
+                    }, 2000);
+                });
         }
 
         // Load data from API - use relative path to adapt to deployment path
@@ -2211,9 +2543,6 @@
                                 maxWidth: 320
                             }).openPopup();
                             fetchWikiImage(p.name, imgId);
-
-                            // Show simulator panel
-                            document.getElementById('sim-panel').style.display = 'block';
                         });
                     }
                 }).addTo(map);
@@ -2235,7 +2564,8 @@
                         });
                         marker.on('click', function() {
                             map.flyToBounds(layer.getBounds(), {
-                                padding: [100, 100]
+                                padding: [150, 150],
+                                maxZoom: 17
                             });
                             layer.fire('click');
                         });
