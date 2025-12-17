@@ -1462,12 +1462,12 @@
                 <p><i class="fas fa-palette" style="width: 16px;"></i> Click data buttons to change display</p>
                 <p><i class="fas fa-filter" style="width: 16px;"></i> Filter results by total carbon</p>
                 <p><i class="fas fa-search" style="width: 16px;"></i> Search by name or postcode</p>
-                <p><i class="fas fa-info-circle" style="width: 16px;"></i> Hover over calculations to learn more</p>
+                <p><i class="fas fa-info-circle" style="width: 16px;"></i> Hover over buttons below to learn more</p>
             </div>
             <div style="margin-top: 15px;">
                 <button onclick="switchPage('report')" id="btn-report" style="width: 100%; padding: 10px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.5); color: rgba(139, 92, 246, 0.7); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s;"
                     onmouseover="this.style.background='rgba(139, 92, 246, 0.2)'" onmouseout="this.style.background='rgba(139, 92, 246, 0.1)'">
-                    <i class="fa-solid fa-book-open"></i> Read Our Study
+                    <i class="fa-solid fa-book-open"></i> Read Our Report
                 </button>
             </div>
         </div>
@@ -1617,10 +1617,10 @@
                 <p style="font-size: 28px; color: #2d3436; font-weight: 700; margin-bottom: 15px;">Edinburgh promised to hit net zero by 2030. It's failing.</p>
                 <p style="font-size: 28px; color: #2d3436; font-weight: 700; margin-bottom: 30px;">Are graveyards the answer?</p>
                 <div style="display: flex; justify-content: center; gap: 30px; margin-top: 30px; margin-bottom: 40px;">
-                    <a href="#" onclick="openFeedbackModal(); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s;"
-                        onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='transparent'; this.style.color='#2d3436'">HAVE YOUR SAY</a>
-                    <a href="#" onclick="switchPage('map'); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s;"
-                        onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='transparent'; this.style.color='#2d3436'">INTERACTIVE WEBMAP</a>
+                    <a href="#" onclick="openFeedbackModal(); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s; background: #fff;"
+                        onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='#fff'; this.style.color='#2d3436'">HAVE YOUR SAY</a>
+                    <a href="#" onclick="switchPage('map'); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s; background: #fff;"
+                        onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='#fff'; this.style.color='#2d3436'">INTERACTIVE WEBMAP</a>
                 </div>
             </div>
             <!-- Scroll Down Indicator -->
@@ -1764,7 +1764,7 @@
                                 </div>
                             </div>
                         </div>
-                        <p style="padding: 0 30px 10px; color: #636e72; font-size: 14px; text-align: center;"><i class="fas fa-info-circle" style="margin-right: 6px;"></i>Dark green on the map represents trees</p>
+                        <p style="padding: 0 30px 10px; color: #636e72; font-size: 14px; text-align: center;"><i class="fas fa-info-circle" style="margin-right: 6px;"></i>Dark green on the maps represents trees</p>
                         <p style="padding: 0 30px 30px; color: #2d3436; font-size: 16px; line-height: 1.8;">At 63 circular plots with a 5m-radius, we recorded tree species, condition and DBH (diameter at breast height). We fed the figures into equations to calculate above-ground carbon at each graveyard.</p>
                     </div>
                 </div>
@@ -1935,7 +1935,7 @@
             var resultsCaptions = [
                 'Figure 1. Calibration model results show weak positive relationship between tree canopy height and carbon density across all 35 graveyards.',
                 'Figure 2. Validation model using remaining field data shows another weak positive relationship.',
-                'Figure 3. Calibration (predicted) model carbon estimates were twice as high as the validation model\'s. There\'s a problem here&',
+                'Figure 3. Calibration (predicted) model carbon estimates were twice as high as the validation model\'s.',
                 'Figure 4. Revealed: our five most environmentally-deprived graveyards.',
                 'Figure 5. SIMD and EDI spatial analysis map of Edinburgh graveyards.'
             ];
