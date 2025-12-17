@@ -1,421 +1,640 @@
-# Edinburgh Carbon Intelligence
+# 🌳 Edinburgh Graveyard Carbon Intelligence
+
+> Interactive visualization platform for carbon storage and environmental deprivation research in Edinburgh graveyards
+
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com)
+[![Oracle](https://img.shields.io/badge/Oracle-Database-red.svg)](https://oracle.com)
+[![License](https://img.shields.io/badge/License-Academic-purple.svg)](#)
 
 ---
 
-# 中文版本
+# 📖 English Version (Detailed Beginner Guide)
 
-## 项目概述
+## 🎯 What is this project?
 
-这是一个交互式网页应用，用于展示爱丁堡墓地的碳储存潜力研究。该项目结合了地理空间数据、环境指标和社会经济数据，通过可视化地图和详细报告呈现研究成果。
+This is an **interactive web map application** that displays:
+- 🌲 **Carbon storage capacity** of Edinburgh's 35 graveyards
+- 📊 **Environmental quality scores** (EDI index) for each graveyard
+- 🏘️ **Socioeconomic conditions** (SIMD index) of surrounding areas
+- 🗺️ All data visualized on an **interactive map**
 
----
-
-## 技术栈
-
-| 类别 | 技术 |
-|------|------|
-| **后端** | Python Flask |
-| **数据库** | Oracle Database |
-| **前端** | HTML5, CSS3, JavaScript |
-| **地图库** | Leaflet.js |
-| **样式** | 自定义 CSS（玻璃态设计） |
-| **字体** | Google Fonts (Rajdhani, Inter, EB Garamond) |
-| **图标** | Font Awesome |
+**Why study graveyards?** Because graveyards typically have many old trees, making them important "green lungs" and carbon sinks in urban areas!
 
 ---
 
-## 项目结构
+## 🛠️ Tech Stack Explained
+
+| Technology | What is it? | What does it do here? |
+|------------|-------------|----------------------|
+| **Python** | Programming language | Writes backend code, processes data |
+| **Flask** | Python web framework | Makes Python respond to web requests |
+| **Oracle Database** | Enterprise database | Stores all data for 35 graveyards |
+| **HTML/CSS/JS** | Web technologies | Builds the user interface |
+| **Leaflet.js** | Map library | Displays interactive map on webpage |
+| **GeoJSON** | Geographic data format | Stores graveyard boundary coordinates |
+
+---
+
+## 📁 Project File Structure
 
 ```
 deploy-web-2/
 │
-├── app.py                      # Flask 主应用程序
-├── templates/
-│   └── map.html                # 前端页面模板
-├── data/
-│   ├── Cemeteries_35.json      # 墓地 GeoJSON 地理数据
-│   └── edinburgh_simd.json     # SIMD 社会剥夺指数数据
-├── static/
-│   └── report_images/          # 报告图片资源
-├── 01_create_tables_clean.sql  # 数据库表创建脚本
-├── 02_insert_data.sql          # 数据插入脚本
-└── README.md                   # 项目文档
+├── 📄 app.py                    # ⭐ Main program! Flask backend
+│
+├── 📁 templates/
+│   └── 📄 map.html              # ⭐ Frontend page! Map + Report
+│
+├── 📁 data/
+│   ├── 📄 Cemeteries_35.json    # Geographic boundaries (GeoJSON)
+│   └── 📄 edinburgh_simd.json   # SIMD deprivation data
+│
+├── 📁 static/
+│   └── 📁 report_images/        # Report images
+│
+├── 📄 01_create_tables_clean.sql   # SQL: Create database table
+├── 📄 02_insert_data.sql           # SQL: Insert graveyard data
+├── 📄 update_edi_values.sql        # SQL: Update EDI values
+│
+└── 📄 README.md                 # This document
 ```
 
 ---
 
-## 开发流程
+## 🗃️ Database Table Structure
 
-### 第一阶段：数据准备
+### `graveyards` Table
 
-#### 1.1 数据库设计
+| Field | Type | Description | Example |
+|-------|------|-------------|---------|
+| `id` | NUMBER | Primary key | 1, 2, 3... |
+| `name` | VARCHAR2(100) | Graveyard name | "Grange Cemetery" |
+| `area_m2` | NUMBER | Area in m² | 45000.5 |
+| `area_hectares` | NUMBER | Area in hectares | 4.5 |
+| `ndvi_mean` | NUMBER | NDVI index (0-1) | 0.65 |
+| `carbon_per_hectare_calibrate` | NUMBER | Carbon per hectare (tonnes) | 125.8 |
+| `edi_norm` | NUMBER | EDI index (0-1 normalized) | 0.72 |
+| `simd_decile` | NUMBER | SIMD decile (1-10) | 7 |
+| `canopy_percentage` | NUMBER | Canopy cover (%) | 45.2 |
+| `carbon_total_tonnes` | NUMBER | Total carbon (tonnes) | 566.1 |
 
-- 使用 Oracle 数据库存储墓地数据
-- 创建 `graveyards` 表，包含以下关键字段：
-  - `name` - 墓地名称
-  - `area_hectares` - 面积（公顷）
-  - `ndvi_mean` - NDVI 植被指数
-  - `carbon_per_hectare_validate` - 每公顷碳储量
-  - `edi_new_canopy_ndvi` - EDI 环境剥夺指数
-  - `simd_decile` - SIMD 社会剥夺十分位数
-  - `canopy_percentage` - 树冠覆盖率
-  - `agb_total` - 地上生物量总量
+### Key Metrics Explained
 
-#### 1.2 GeoJSON 数据准备
+#### 🌿 NDVI (Normalized Difference Vegetation Index)
+- **Range**: 0 to 1
+- **Meaning**: Measures vegetation health
+- **Interpretation**:
+  - 0.0-0.2 = Almost no vegetation
+  - 0.2-0.4 = Sparse vegetation
+  - 0.4-0.6 = Moderate vegetation
+  - 0.6-1.0 = Dense, healthy vegetation ✅
 
-- `Cemeteries_35.json` - 包含35个墓地的地理边界多边形
-- `edinburgh_simd.json` - 爱丁堡 SIMD 区域数据用于社会剥夺可视化
+#### 🌍 EDI (Environmental Deprivation Index)
+- **Range**: 0 to 1 (normalized)
+- **Meaning**: Overall environmental quality
+- **Interpretation**:
+  - Close to 0 = Poor environment (most deprived) ❌
+  - Close to 1 = Good environment (least deprived) ✅
 
----
+#### 🏘️ SIMD (Scottish Index of Multiple Deprivation)
+- **Range**: 1 to 10
+- **Meaning**: Socioeconomic deprivation level
+- **Interpretation**:
+  - 1-2 = Most deprived (poorer areas) ❌
+  - 9-10 = Least deprived (wealthier areas) ✅
 
-### 第二阶段：后端开发
-
-#### 2.1 Flask 应用架构
-
-```python
-# 核心路由
-/                           # 主页
-/api/graveyards             # 墓地数据 API
-/api/simd                   # SIMD 数据 API
-/static/<path:filename>     # 静态文件服务
+#### 🌳 Carbon Calculation
 ```
-
-#### 2.2 数据融合逻辑
-
-1. 读取 GeoJSON 文件获取地理边界
-2. 连接 Oracle 数据库获取环境指标
-3. 通过名称匹配合并数据（支持名称映射）
-4. 对未匹配项使用面积匹配算法
-5. 注入报告标签（如"生物多样性热点"、"优先区域"等）
-
----
-
-### 第三阶段：前端开发
-
-#### 3.1 页面结构
-
-- **报告页面** - 学术研究报告展示，包含项目介绍、研究发现、团队信息
-- **地图页面** - 交互式地图可视化，支持多种数据视图
-
-#### 3.2 地图功能
-
-| 功能 | 描述 |
-|------|------|
-| **多层可视化** | 碳储量、EDI、SIMD、NDVI 等多种视图模式 |
-| **交互弹窗** | 点击墓地显示详细数据卡片 |
-| **搜索过滤** | 按名称搜索墓地 |
-| **图例说明** | 动态颜色图例 |
-| **数据导出** | 支持数据导出功能 |
-| **响应式设计** | 适配移动端显示 |
-
-#### 3.3 UI 设计特点
-
-- 采用 Glassmorphism（玻璃态）设计风格
-- 深色主题配合霓虹色彩强调
-- 平滑动画过渡效果
-- 侧边栏可折叠设计
-
-#### 3.4 颜色编码系统
-
-```css
---neon-blue: #0ea5e9;    /* 高值指标 */
---neon-green: #10b981;   /* 生态指标 */
---neon-red: #ef4444;     /* 优先区域 */
---neon-purple: #8b5cf6;  /* 强调元素 */
---neon-yellow: #f59e0b;  /* 遗产标记 */
+Total Carbon (tonnes) = Carbon/ha × Area(m²) ÷ 10000
 ```
 
 ---
 
-### 第四阶段：数据可视化模式
+## 🚀 Running the Project (Step-by-Step)
 
-| 模式 | 数据字段 | 颜色范围 |
-|------|----------|----------|
-| **碳储量** | carbon_per_hectare | 绿色渐变 |
-| **EDI 指数** | edi_new_canopy_ndvi | 蓝色渐变 |
-| **SIMD 剥夺** | simd_decile | 红-黄-绿 |
-| **NDVI 植被** | ndvi_mean | 绿色渐变 |
-| **树冠覆盖** | canopy_percentage | 绿色渐变 |
+### Step 1: Install Python
+- Download: https://python.org/downloads/
+- ⚠️ Check "Add Python to PATH" during installation!
 
----
-
-### 第五阶段：报告集成
-
-- 集成学术研究报告内容
-- 展示团队成员信息
-- 包含关键发现和建议
-- 支持图片查看器功能
-
----
-
-## 运行项目
-
-### 环境要求
-
+### Step 2: Install Dependencies
 ```bash
 pip install flask oracledb
 ```
 
-### 启动服务
-
+### Step 3: Start the Server
 ```bash
+cd d:\网页测试\deploy-web-2
 python app.py
 ```
 
-服务将在 `http://localhost:55429` 启动
+You'll see:
+```
+=== Oracle Database Login ===
+Username: [enter your username]
+Password: [enter password, hidden]
+Credentials set successfully!
+
+ * Running on http://localhost:55429
+```
+
+### Step 4: Open in Browser
+```
+http://localhost:55429
+```
+
+🎉 **Done! You should see the interactive map!**
 
 ---
 
-## API 端点
+## 📊 Visualization Modes
 
-| 端点 | 方法 | 描述 |
-|------|------|------|
-| `/` | GET | 主页面 |
-| `/api/graveyards` | GET | 返回墓地 GeoJSON 数据 |
-| `/api/simd` | GET | 返回 SIMD 区域数据 |
-
----
-
-## 关键指标说明
-
-| 指标 | 说明 |
-|------|------|
-| **NDVI** | 归一化植被指数，衡量植被健康程度 (0-1) |
-| **EDI** | 环境剥夺指数，综合树冠覆盖和 NDVI (0-100) |
-| **SIMD** | 苏格兰多重剥夺指数，1=最剥夺，10=最不剥夺 |
-| **Carbon** | 每公顷碳储量（吨/公顷） |
-| **Canopy** | 树冠覆盖百分比 |
-| **AGB** | 地上生物量总量 |
+| Mode | Data Source | Color Scheme |
+|------|-------------|--------------|
+| **Carbon** | carbon_per_hectare_calibrate | Green gradient |
+| **EDI** | edi_norm (0-1) | Blue-Cyan-Green-Yellow |
+| **SIMD** | simd_decile (1-10) | Yellow-Orange gradient |
+| **NDVI** | ndvi_mean | Green gradient |
+| **Canopy** | canopy_percentage | Green gradient |
 
 ---
 
-## 项目特色
+## 👥 Development Team
 
-1. **数据驱动** - 基于真实环境监测数据
-2. **多维分析** - 结合环境与社会经济指标
-3. **交互体验** - 直观的地图交互界面
-4. **学术价值** - 服务于大学地理科学研究
-5. **响应式设计** - 支持多设备访问
+**University of Edinburgh - School of GeoSciences - MSc GIS 2025**
+
+| Member | Role |
+|--------|------|
+| Alex Shaw | Team Member |
+| Charlotte Thomson | Team Member |
+| Lama Alqahtani | Team Member |
+| Ollie Cavill | Team Member |
+| Wu Xinxin | Team Member |
+| Xiao Lang | Team Member |
 
 ---
 
-## 开发团队
+## 📜 License
 
-**爱丁堡大学 - 地理科学学院**
-
----
-
-## 许可证
-
-本项目用于学术研究目的。
+This project is for academic research purposes only.
 
 ---
 ---
 ---
 
-# English Version
+# 📖 中文版本（超详细小白教程）
 
-## Project Overview
+## 🎯 这个项目是做什么的？
 
-An interactive web application showcasing research on carbon storage potential in Edinburgh's graveyards. The project combines geospatial data, environmental metrics, and socioeconomic data through an interactive map and detailed report.
+简单来说，这是一个**交互式网页地图应用**，用来展示：
+- 🌲 爱丁堡35个墓地的**碳储存能力**（树木吸收了多少二氧化碳）
+- 📊 每个墓地的**环境质量评分**（EDI指数）
+- 🏘️ 墓地所在区域的**社会经济状况**（SIMD指数）
+- 🗺️ 所有数据在**交互式地图**上的可视化展示
 
----
-
-## Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| **Backend** | Python Flask |
-| **Database** | Oracle Database |
-| **Frontend** | HTML5, CSS3, JavaScript |
-| **Mapping** | Leaflet.js |
-| **Styling** | Custom CSS (Glassmorphism Design) |
-| **Fonts** | Google Fonts (Rajdhani, Inter, EB Garamond) |
-| **Icons** | Font Awesome |
+**为什么研究墓地？** 因为墓地通常有很多老树，是城市中重要的"绿肺"和碳汇！
 
 ---
 
-## Project Structure
+## 🛠️ 技术栈详解（给新手的解释）
+
+| 技术 | 是什么 | 在项目中做什么 |
+|------|--------|----------------|
+| **Python** | 编程语言 | 写后端代码，处理数据 |
+| **Flask** | Python网页框架 | 让Python代码能响应网页请求 |
+| **Oracle Database** | 企业级数据库 | 存储35个墓地的所有数据 |
+| **HTML/CSS/JS** | 网页三剑客 | 构建用户看到的网页界面 |
+| **Leaflet.js** | 地图库 | 在网页上显示交互式地图 |
+| **GeoJSON** | 地理数据格式 | 存储墓地的地理边界坐标 |
+
+---
+
+## 📁 项目文件结构（每个文件是干嘛的）
 
 ```
 deploy-web-2/
 │
-├── app.py                      # Main Flask application
-├── templates/
-│   └── map.html                # Frontend template
-├── data/
-│   ├── Cemeteries_35.json      # Cemetery GeoJSON data
-│   └── edinburgh_simd.json     # SIMD deprivation data
-├── static/
-│   └── report_images/          # Report images
-├── 01_create_tables_clean.sql  # Database table creation script
-├── 02_insert_data.sql          # Data insertion script
-└── README.md                   # Project documentation
+├── 📄 app.py                    # ⭐ 主程序！Flask后端，连接数据库，提供API
+│
+├── 📁 templates/                # 网页模板文件夹
+│   └── 📄 map.html              # ⭐ 前端页面！地图+报告都在这里
+│
+├── 📁 data/                     # 数据文件夹
+│   ├── 📄 Cemeteries_35.json    # 35个墓地的地理边界（GeoJSON格式）
+│   └── 📄 edinburgh_simd.json   # 爱丁堡SIMD社会剥夺数据
+│
+├── 📁 static/                   # 静态资源文件夹
+│   └── 📁 report_images/        # 报告中用到的图片
+│
+├── 📄 01_create_tables_clean.sql   # SQL脚本：创建数据库表
+├── 📄 02_insert_data.sql           # SQL脚本：插入墓地数据
+├── 📄 update_edi_values.sql        # SQL脚本：更新EDI值
+│
+└── 📄 README.md                 # 你正在看的这个文档
 ```
 
 ---
 
-## Development Process
+## 🗃️ 数据库表结构详解
 
-### Phase 1: Data Preparation
+### `graveyards` 表（墓地数据表）
 
-#### 1.1 Database Design
+这个表存储了35个墓地的所有信息：
 
-- Oracle database for cemetery data storage
-- Created `graveyards` table with key fields:
-  - `name` - Cemetery name
-  - `area_hectares` - Area in hectares
-  - `ndvi_mean` - NDVI vegetation index
-  - `carbon_per_hectare_validate` - Carbon storage per hectare
-  - `edi_new_canopy_ndvi` - EDI environmental deprivation index
-  - `simd_decile` - SIMD social deprivation decile
-  - `canopy_percentage` - Canopy coverage percentage
-  - `agb_total` - Total above-ground biomass
+| 字段名 | 数据类型 | 说明 | 示例值 |
+|--------|----------|------|--------|
+| `id` | NUMBER | 主键，自动编号 | 1, 2, 3... |
+| `name` | VARCHAR2(100) | 墓地名称 | "Grange Cemetery" |
+| `area_m2` | NUMBER | 面积（平方米） | 45000.5 |
+| `area_hectares` | NUMBER | 面积（公顷）= 平方米/10000 | 4.5 |
+| `ndvi_mean` | NUMBER | NDVI植被指数（0-1） | 0.65 |
+| `carbon_per_hectare_calibrate` | NUMBER | 每公顷碳储量（吨） | 125.8 |
+| `edi_norm` | NUMBER | EDI环境指数（0-1标准化） | 0.72 |
+| `simd_decile` | NUMBER | SIMD社会剥夺等级（1-10） | 7 |
+| `canopy_percentage` | NUMBER | 树冠覆盖率（%） | 45.2 |
+| `carbon_total_tonnes` | NUMBER | 碳储量总量（吨） | 566.1 |
 
-#### 1.2 GeoJSON Data Preparation
+### 关键指标解释
 
-- `Cemeteries_35.json` - Geographic boundary polygons for 35 cemeteries
-- `edinburgh_simd.json` - Edinburgh SIMD zone data for deprivation visualization
+#### 🌿 NDVI（归一化植被指数）
+- **范围**：0 到 1
+- **含义**：衡量植被健康程度
+- **解读**：
+  - 0.0-0.2 = 几乎没有植被（水面、建筑）
+  - 0.2-0.4 = 稀疏植被
+  - 0.4-0.6 = 中等植被
+  - 0.6-1.0 = 茂密健康植被 ✅
+
+#### 🌍 EDI（环境剥夺指数）
+- **范围**：0 到 1（已标准化）
+- **含义**：综合评估环境质量
+- **解读**：
+  - 接近 0 = 环境质量差（最剥夺）❌
+  - 接近 1 = 环境质量好（最不剥夺）✅
+- **计算公式**：结合了碳储量、树冠覆盖、NDVI等多个因素
+
+#### 🏘️ SIMD（苏格兰多重剥夺指数）
+- **范围**：1 到 10
+- **含义**：衡量社会经济剥夺程度
+- **解读**：
+  - 1-2 = 最剥夺（贫困地区）❌
+  - 3-4 = 较剥夺
+  - 5-6 = 中等
+  - 7-8 = 较富裕
+  - 9-10 = 最不剥夺（富裕地区）✅
+
+#### 🌳 碳储量计算
+```
+总碳储量(吨) = 每公顷碳储量(吨/公顷) × 面积(平方米) ÷ 10000
+```
+**示例**：一个墓地每公顷储存125吨碳，面积4公顷
+```
+总碳储量 = 125 × 40000 ÷ 10000 = 500 吨
+```
 
 ---
 
-### Phase 2: Backend Development
+## 🔧 后端代码详解 (app.py)
 
-#### 2.1 Flask Application Architecture
+### 程序启动流程
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  1. 启动 python app.py                                   │
+├─────────────────────────────────────────────────────────┤
+│  2. 提示输入数据库用户名和密码（安全模式）                │
+├─────────────────────────────────────────────────────────┤
+│  3. Flask 服务器启动，监听 localhost:55429              │
+├─────────────────────────────────────────────────────────┤
+│  4. 用户访问网页 → 触发路由 → 返回数据                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 核心函数解释
+
+#### `fetch_enriched_data()` - 数据获取与融合
+
+这个函数做了以下事情：
 
 ```python
-# Core Routes
-/                           # Home page
-/api/graveyards             # Cemetery data API
-/api/simd                   # SIMD data API
-/static/<path:filename>     # Static file serving
+def fetch_enriched_data():
+    # 步骤1: 读取GeoJSON文件（墓地地理边界）
+    with open('data/Cemeteries_35.json') as f:
+        geojson_data = json.load(f)
+    
+    # 步骤2: 连接Oracle数据库
+    conn = oracledb.connect(user=..., password=..., dsn=...)
+    
+    # 步骤3: 查询墓地数据
+    cur.execute("""
+        SELECT name, area_m2, carbon_per_hectare_calibrate, 
+               edi_norm, simd_decile, ...
+        FROM graveyards
+    """)
+    
+    # 步骤4: 将数据库数据与GeoJSON合并
+    for feature in geojson_data['features']:
+        # 按名称匹配，把数据库的数据加到GeoJSON里
+        feature['properties']['CarbonPerHectare'] = ...
+        feature['properties']['EDI'] = ...
+    
+    # 步骤5: 返回合并后的数据
+    return geojson_data
 ```
 
-#### 2.2 Data Merging Logic
+### API 路由说明
 
-1. Load GeoJSON file for geographic boundaries
-2. Connect to Oracle database for environmental metrics
-3. Merge data by name matching (with name mapping support)
-4. Use area-based matching for unmatched features
-5. Inject report tags (e.g., "Biodiversity Hotspot", "Priority Zone")
+| 路由 | 请求方式 | 返回内容 | 用途 |
+|------|----------|----------|------|
+| `/` | GET | HTML页面 | 显示主页面（地图+报告） |
+| `/api/graveyards` | GET | JSON数据 | 前端获取墓地数据用于渲染地图 |
+| `/api/simd` | GET | JSON数据 | 前端获取SIMD背景图层数据 |
 
 ---
 
-### Phase 3: Frontend Development
+## 🎨 前端代码详解 (map.html)
 
-#### 3.1 Page Structure
+### 页面结构
 
-- **Report Page** - Academic research report display with project intro, findings, team info
-- **Map Page** - Interactive map visualization with multiple data views
+```
+┌─────────────────────────────────────────────────────────┐
+│                     导航栏                               │
+│  [Logo] [Home] [Report] [Map]                           │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  ┌─────────┐  ┌───────────────────────────────────┐    │
+│  │         │  │                                   │    │
+│  │  侧边栏  │  │          地图区域                 │    │
+│  │         │  │                                   │    │
+│  │ - 搜索   │  │    [Leaflet交互式地图]            │    │
+│  │ - 统计   │  │                                   │    │
+│  │ - 列表   │  │                                   │    │
+│  │         │  │                                   │    │
+│  └─────────┘  └───────────────────────────────────┘    │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+```
 
-#### 3.2 Map Features
+### 关键JavaScript函数
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-layer Visualization** | Carbon, EDI, SIMD, NDVI view modes |
-| **Interactive Popups** | Click cemetery to show detailed data card |
-| **Search & Filter** | Search cemeteries by name |
-| **Legend** | Dynamic color legend |
-| **Data Export** | Export functionality |
-| **Responsive Design** | Mobile-friendly layout |
+#### 1. 地图初始化
+```javascript
+var map = L.map('map').setView([55.9533, -3.1883], 12);
+// 创建地图，中心点在爱丁堡，缩放级别12
+```
 
-#### 3.3 UI Design Features
+#### 2. 数据获取
+```javascript
+fetch('/api/graveyards')
+    .then(response => response.json())
+    .then(data => {
+        // 用获取的数据渲染地图
+        renderMap(data);
+    });
+```
 
-- Glassmorphism design aesthetic
-- Dark theme with neon accent colors
-- Smooth animation transitions
-- Collapsible sidebar design
+#### 3. 颜色映射（根据数据值显示不同颜色）
+```javascript
+function getColor(value, mode) {
+    if (mode === 'carbon') {
+        // 碳储量：绿色渐变
+        if (value >= 200) return '#14532d';  // 深绿 - 高碳储量
+        if (value >= 150) return '#166534';
+        if (value >= 100) return '#22c55e';
+        return '#86efac';  // 浅绿 - 低碳储量
+    }
+    if (mode === 'edi') {
+        // EDI指数：蓝-青-绿-黄
+        if (value >= 0.6) return '#1e3a5f';  // 深蓝 - 环境最好
+        if (value >= 0.4) return '#0891b2';  // 青色
+        if (value >= 0.25) return '#34d399'; // 绿色
+        return '#fbbf24';  // 黄色 - 环境最差
+    }
+    // ... 其他模式
+}
+```
 
-#### 3.4 Color Coding System
-
-```css
---neon-blue: #0ea5e9;    /* High values */
---neon-green: #10b981;   /* Ecological */
---neon-red: #ef4444;     /* Priority zones */
---neon-purple: #8b5cf6;  /* Accent */
---neon-yellow: #f59e0b;  /* Heritage */
+#### 4. 视图模式切换
+```javascript
+function setMode(mode) {
+    currentMode = mode;  // 'carbon', 'edi', 'simd', 'ndvi', 'canopy'
+    updateMapColors();   // 重新着色
+    updateLegend();      // 更新图例
+    renderList();        // 更新列表
+}
 ```
 
 ---
 
-### Phase 4: Visualization Modes
+## 🚀 运行项目（手把手教程）
 
-| Mode | Data Field | Color Range |
-|------|------------|-------------|
-| **Carbon** | carbon_per_hectare | Green gradient |
-| **EDI Index** | edi_new_canopy_ndvi | Blue gradient |
-| **SIMD Deprivation** | simd_decile | Red-Yellow-Green |
-| **NDVI Vegetation** | ndvi_mean | Green gradient |
-| **Canopy Coverage** | canopy_percentage | Green gradient |
+### 第一步：安装必要软件
 
----
+#### 1.1 安装 Python
+- 下载地址：https://python.org/downloads/
+- 安装时勾选 "Add Python to PATH" ⚠️很重要！
 
-### Phase 5: Report Integration
+#### 1.2 验证安装
+打开命令行（Windows按 `Win+R`，输入 `cmd`）：
+```bash
+python --version
+# 应该显示 Python 3.8.x 或更高版本
+```
 
-- Integrated academic research report content
-- Team member information display
-- Key findings and recommendations
-- Image viewer functionality
+### 第二步：安装项目依赖
 
----
-
-## Running the Project
-
-### Requirements
-
+在命令行中运行：
 ```bash
 pip install flask oracledb
 ```
 
-### Start Server
+**如果报错**，尝试：
+```bash
+pip install flask oracledb -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+### 第三步：确保数据库可访问
+
+项目使用的是爱丁堡大学的Oracle数据库：
+- **地址**：172.16.108.21:1842
+- **服务名**：GLRNLIVE_PRMY.is.ed.ac.uk
+- **需要**：VPN连接到大学网络
+
+### 第四步：启动项目
 
 ```bash
+cd d:\网页测试\deploy-web-2
 python app.py
 ```
 
-Server starts at `http://localhost:55429`
+你会看到：
+```
+=== Oracle Database Login ===
+Username: 输入你的用户名（如 s2835812）
+Password: 输入你的密码（不会显示）
+Credentials set successfully!
+
+ * Running on http://localhost:55429
+```
+
+### 第五步：访问网页
+
+打开浏览器，访问：
+```
+http://localhost:55429
+```
+
+🎉 **完成！你应该能看到漂亮的地图了！**
 
 ---
 
-## API Endpoints
+## ❓ 常见问题解答
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Main page |
-| `/api/graveyards` | GET | Returns cemetery GeoJSON data |
-| `/api/simd` | GET | Returns SIMD zone data |
+### Q1: 报错 "No module named 'flask'"
+**解决**：运行 `pip install flask`
 
----
+### Q2: 报错 "No module named 'oracledb'"
+**解决**：运行 `pip install oracledb`
 
-## Key Metrics Explanation
+### Q3: 数据库连接失败
+**可能原因**：
+- 没有连接大学VPN
+- 用户名或密码错误
+- 数据库服务暂时不可用
 
-| Metric | Description |
-|--------|-------------|
-| **NDVI** | Normalized Difference Vegetation Index, measures vegetation health (0-1) |
-| **EDI** | Environmental Deprivation Index, combines canopy and NDVI (0-100) |
-| **SIMD** | Scottish Index of Multiple Deprivation, 1=most deprived, 10=least deprived |
-| **Carbon** | Carbon storage per hectare (tonnes/hectare) |
-| **Canopy** | Tree canopy coverage percentage |
-| **AGB** | Total above-ground biomass |
+### Q4: 地图上没有数据
+**可能原因**：
+- 数据库连接失败（查看终端错误信息）
+- GeoJSON文件路径错误
 
----
-
-## Project Highlights
-
-1. **Data-Driven** - Based on real environmental monitoring data
-2. **Multi-Dimensional Analysis** - Combines environmental and socioeconomic indicators
-3. **Interactive Experience** - Intuitive map interaction interface
-4. **Academic Value** - Serves university geoscience research
-5. **Responsive Design** - Supports multi-device access
+### Q5: 网页打不开
+**确认**：
+- 终端显示 "Running on http://localhost:55429"
+- 浏览器访问的地址正确
 
 ---
 
-## Development Team
+## 📊 数据可视化模式详解
 
-**University of Edinburgh - School of GeoSciences**
+### 模式1：碳储量 (Carbon)
+- **数据来源**：`carbon_per_hectare_calibrate`
+- **颜色方案**：绿色渐变（深绿=高碳储量）
+- **图例**：
+  - 🟢 深绿：≥200 吨/公顷
+  - 🟢 中绿：150-200 吨/公顷
+  - 🟢 浅绿：100-150 吨/公顷
+  - 🟢 最浅：<100 吨/公顷
+
+### 模式2：环境剥夺指数 (EDI)
+- **数据来源**：`edi_norm`（0-1标准化）
+- **颜色方案**：蓝-青-绿-黄
+- **图例**：
+  - 🔵 深蓝：≥0.6（环境最好）
+  - 🔵 青色：0.4-0.6
+  - 🟢 绿色：0.25-0.4
+  - 🟡 黄色：<0.25（环境最差）
+
+### 模式3：社会剥夺指数 (SIMD)
+- **数据来源**：`simd_decile`（1-10）
+- **颜色方案**：黄-橙渐变
+- **图例**：
+  - 🟡 浅黄：9-10（最不剥夺/富裕）
+  - 🟡 黄色：7-8
+  - 🟠 淡橙：5-6
+  - 🟠 橙色：3-4
+  - 🟠 深橙：1-2（最剥夺/贫困）
 
 ---
 
-## License
+## 🏗️ 项目架构图
 
-This project is for academic research purposes.
+```
+┌──────────────────────────────────────────────────────────────┐
+│                        用户浏览器                             │
+│                    (Chrome/Firefox/Edge)                     │
+└────────────────────────────┬─────────────────────────────────┘
+                             │ HTTP请求
+                             ▼
+┌──────────────────────────────────────────────────────────────┐
+│                      Flask Web服务器                          │
+│                       (app.py)                               │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │ 路由处理    │  │ 数据融合    │  │ API端点             │  │
+│  │ /          │  │ GeoJSON +   │  │ /api/graveyards    │  │
+│  │ /api/...   │  │ Database    │  │ /api/simd          │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+└────────────────────────────┬─────────────────────────────────┘
+                             │ SQL查询
+                             ▼
+┌──────────────────────────────────────────────────────────────┐
+│                     Oracle Database                          │
+│                  (爱丁堡大学服务器)                           │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │ graveyards 表                                        │    │
+│  │ - 35条墓地记录                                       │    │
+│  │ - 碳储量、EDI、SIMD等数据                            │    │
+│  └─────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📝 代码修改指南
+
+### 如何添加新的数据字段？
+
+#### 步骤1：在数据库添加字段
+```sql
+ALTER TABLE graveyards ADD new_field NUMBER;
+```
+
+#### 步骤2：在 app.py 中查询新字段
+```python
+cur.execute("""
+    SELECT name, ..., new_field
+    FROM graveyards
+""")
+```
+
+#### 步骤3：在数据字典中添加
+```python
+db_data[name] = {
+    ...
+    'NewField': row[X] or 0,
+}
+```
+
+#### 步骤4：在前端 map.html 中使用
+```javascript
+var newValue = feature.properties.NewField;
+```
+
+---
+
+## 🎓 学习资源
+
+- **Flask官方教程**：https://flask.palletsprojects.com/
+- **Leaflet官方文档**：https://leafletjs.com/reference.html
+- **GeoJSON规范**：https://geojson.org/
+- **Oracle SQL教程**：https://docs.oracle.com/en/database/
+
+---
+
+## 👥 开发团队
+
+**爱丁堡大学 - 地理科学学院 - MSc GIS 2025**
+
+| 成员 | 职责 |
+|------|------|
+| Alex Shaw | 团队成员 |
+| Charlotte Thomson | 团队成员 |
+| Lama Alqahtani | 团队成员 |
+| Ollie Cavill | 团队成员 |
+| Wu Xinxin | 团队成员 |
+| Xiao Lang | 团队成员 |
+
+---
+
+## 📜 许可证
+
+本项目仅用于学术研究目的。
