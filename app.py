@@ -2,12 +2,15 @@ import oracledb
 import json
 import os
 import sys
+import getpass
 from flask import Flask, jsonify, render_template, send_from_directory
 
 # --- Oracle Database Configuration ---
-ORACLE_USER = "s2835812"
-ORACLE_PASSWORD = "252525"
+print("=== Oracle Database Login ===")
+ORACLE_USER = input("Username: ")
+ORACLE_PASSWORD = getpass.getpass("Password: ")
 ORACLE_DSN = "172.16.108.21:1842/GLRNLIVE_PRMY.is.ed.ac.uk"
+print("Credentials set successfully!\n")
 
 app = Flask(__name__)
 
@@ -56,11 +59,18 @@ def fetch_enriched_data():
         )
         cur = conn.cursor()
         
-        # Query database - get all required fields
+        # Query total carbon from database (calculated from corrected data)
         cur.execute("""
-            SELECT name, strata, area_hectares, ndvi_mean, 
-                   carbon_per_hectare_validate, edi_new_canopy_ndvi, simd_decile, 
-                   canopy_percentage, agb_total
+            SELECT SUM(carbon_per_hectare_calibrate * area_m2 / 10000) FROM graveyards
+        """)
+        total_carbon_db = cur.fetchone()[0] or 0
+        
+        # Query database - get all required fields (calculate total carbon from corrected data)
+        cur.execute("""
+            SELECT name, strata, area_m2, ndvi_mean, 
+                   carbon_per_hectare_calibrate, edi_norm, simd_decile, 
+                   canopy_percentage, 
+                   (carbon_per_hectare_calibrate * area_m2 / 10000) AS calculated_carbon_total
             FROM graveyards
             ORDER BY name
         """)
@@ -69,18 +79,18 @@ def fetch_enriched_data():
         for row in cur:
             name = row[0]
             if name:
-                # Keep EDI in 0-100 range (do NOT divide by 100)
+                # EDI normalized 0-1 scale (0=most deprived, 1=least deprived)
                 edi_value = row[5] or 0
                 
                 db_data[name.strip()] = {
                     'Strata': row[1] or 'Unknown',
-                    'Area': (row[2] or 0) * 10000,  # Convert hectares to m2
+                    'Area': row[2] or 0,  # area_m2 directly
                     'NDVI': row[3] or 0,  # NDVI Mean
-                    'CarbonPerHectare': row[4] or 0,  # carbon_per_hectare_validate
-                    'EDI': edi_value,  # EDI new (Canopy % x NDVI) - keep 0-100 range
+                    'CarbonPerHectare': row[4] or 0,  # carbon_per_hectare_calibrate
+                    'EDI': edi_value,  # EDI normalized 0-1 scale
                     'SIMD': row[6] or 0,  # SIMD Decile
                     'Canopy': row[7] or 0,  # Canopy Percentage
-                    'AGBTotal': row[8] or 0  # AGB Total
+                    'AGBTotal': row[8] or 0  # calculated: carbon_per_hectare_calibrate * area_m2 / 10000
                 }
         
         print(f"Loaded {len(db_data)} cemeteries from database", file=sys.stderr)
@@ -193,6 +203,9 @@ def fetch_enriched_data():
         elif unmatched_features:
             print(f"Unmatched names: {[f['properties'].get('name') for f in unmatched_features[:5]]}", file=sys.stderr)
 
+        # Add total carbon from database to response
+        geojson_data['totalCarbonFromDB'] = round(total_carbon_db, 1)
+        
         return geojson_data
 
     except Exception as e:

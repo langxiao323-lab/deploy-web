@@ -746,12 +746,24 @@
             font-size: 14px;
             font-weight: 700;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-            transition: color 0.3s;
+            transition: all 0.3s ease;
+            padding: 8px 14px;
+            border-radius: 20px;
+            position: relative;
         }
         
         .report-nav-links a:hover {
-            color: #fff;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+            color: #1e3a5f;
+            background: rgba(255, 255, 255, 0.95);
+            text-shadow: none;
+            transform: translateY(-2px);
+        }
+        
+        .report-nav-links a.active {
+            color: #1e3a5f;
+            background: #fff;
+            text-shadow: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
         }
         
         .report-nav-buttons {
@@ -1242,7 +1254,7 @@
             }
             clearHighlights();
             var sections = {
-                'introduction': '#report-intro',
+                'introduction': '#report-motivation',
                 'methods': '#report-methods',
                 'results': '#report-results',
                 'conclusions': '#report-conclusions',
@@ -1279,6 +1291,53 @@
                 el.style.boxShadow = '';
             });
         }
+
+        // Scroll Spy - ڨ��خSM���*��
+        function updateActiveNav() {
+            var sections = document.querySelectorAll('.report-section, .report-hero');
+            var navLinks = document.querySelectorAll('.report-nav-links a[href^="#"]');
+            var scrollPos = window.scrollY + 150;
+
+            sections.forEach(function(section) {
+                var top = section.offsetTop;
+                var height = section.offsetHeight;
+                var id = section.getAttribute('id');
+
+                if (scrollPos >= top && scrollPos < top + height) {
+                    navLinks.forEach(function(link) {
+                        link.classList.remove('active');
+                        var href = link.getAttribute('href');
+                        if (href === '#' + id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+
+            // Hero:�y�
+            if (window.scrollY < 300) {
+                navLinks.forEach(function(link) {
+                    link.classList.remove('active');
+                });
+                var introLink = document.querySelector('.report-nav-links a[href="#report-motivation"]');
+                if (introLink) introLink.classList.add('active');
+            }
+        }
+
+        // �,ڨ��
+        window.addEventListener('scroll', updateActiveNav);
+        // ub�}��
+        document.addEventListener('DOMContentLoaded', updateActiveNav);
+
+        // Toggle Help Panel
+        function toggleHelp() {
+            var panel = document.getElementById('helpPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+            } else {
+                panel.style.display = 'none';
+            }
+        }
     </script>
 
     <!-- Loading Overlay -->
@@ -1293,16 +1352,20 @@
         </div>
 
         <div class="header">
-            <h1>Carbon Intelligence</h1>
-            <p>Edinburgh Greenspace Analysis System</p>
-            <div style="margin-top: 15px; display: flex; gap: 10px;">
-                <button onclick="switchPage('map')" id="btn-map" style="flex: 1; padding: 10px; background: rgba(14, 165, 233, 0.2); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s;"
-                    onmouseover="this.style.background='rgba(14, 165, 233, 0.3)'" onmouseout="this.style.background='rgba(14, 165, 233, 0.2)'">
-                    <i class="fa-solid fa-map"></i> Interactive Map
-                </button>
-                <button onclick="switchPage('report')" id="btn-report" style="flex: 1; padding: 10px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.5); color: rgba(139, 92, 246, 0.7); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s;"
+            <h1>City Cemetery Carbon</h1>
+            <p>Explore Edinburgh's secret carbon sinks</p>
+            <button onclick="toggleHelp()" style="width: 100%; margin-top: 10px; padding: 8px; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600;"><i class="fas fa-question-circle" style="margin-right: 6px;"></i>How to Use</button>
+            <div id="helpPanel" style="display: none; margin-top: 10px; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; font-size: 11px; color: #94a3b8; line-height: 1.6;">
+                <p style="margin-bottom: 8px;"><strong style="color: #10b981;">Quick Guide:</strong></p>
+                <p><i class="fas fa-mouse-pointer" style="width: 16px;"></i> Select graveyard on map or list below</p>
+                <p><i class="fas fa-palette" style="width: 16px;"></i> Click data buttons to change display</p>
+                <p><i class="fas fa-filter" style="width: 16px;"></i> Filter results by total carbon</p>
+                <p><i class="fas fa-search" style="width: 16px;"></i> Search by name or postcode</p>
+            </div>
+            <div style="margin-top: 15px;">
+                <button onclick="switchPage('report')" id="btn-report" style="width: 100%; padding: 10px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.5); color: rgba(139, 92, 246, 0.7); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s;"
                     onmouseover="this.style.background='rgba(139, 92, 246, 0.2)'" onmouseout="this.style.background='rgba(139, 92, 246, 0.1)'">
-                    <i class="fa-solid fa-home"></i> Home
+                    <i class="fa-solid fa-book-open"></i> Read Our Study
                 </button>
             </div>
         </div>
@@ -1310,19 +1373,19 @@
         <!-- View Mode Controls -->
         <div class="controls" style="grid-template-columns: repeat(2, 1fr);">
             <button class="mode-btn active" onclick="setMode('carbon')" title="Carbon storage per hectare (tonnes/ha) - Shows carbon density of each graveyard"><i class="fa-solid fa-leaf"></i> Carbon/Ha</button>
-            <button class="mode-btn" onclick="setMode('agb')" title="Above Ground Biomass Total (tonnes) - Total carbon stored in vegetation"><i class="fa-solid fa-seedling"></i> AGB Total</button>
-            <button class="mode-btn" onclick="setMode('canopy')" title="Canopy Cover Percentage - Tree canopy coverage of each site"><i class="fa-solid fa-cloud"></i> Canopy %</button>
-            <button class="mode-btn" onclick="setMode('edi')" title="Environmental Deprivation Index - Measures environmental quality (higher = better)"><i class="fa-solid fa-tree"></i> EDI</button>
+            <button class="mode-btn" onclick="setMode('agb')" title="Total carbon stored in vegetation (tonnes)"><i class="fa-solid fa-seedling"></i> Total Carbon</button>
+            <button class="mode-btn" onclick="setMode('canopy')" title="Canopy Cover Percentage - Tree canopy coverage of each site"><i class="fa-solid fa-tree"></i> Canopy %</button>
+            <button class="mode-btn" onclick="setMode('edi')" title="Environmental Deprivation Index - LOW scores = HIGH environmental deprivation, HIGH scores = LOW environmental deprivation"><i class="fa-solid fa-tree"></i> EDI</button>
             <button class="mode-btn" onclick="setMode('ndvi')" title="Normalized Difference Vegetation Index - Satellite-derived vegetation greenness (0-1)"><i class="fa-solid fa-spa"></i> NDVI</button>
-            <button class="mode-btn" onclick="setMode('simd')" title="Scottish Index of Multiple Deprivation - Neighbourhood deprivation level (1=most deprived, 10=least)"><i class="fa-solid fa-house-user"></i> SIMD</button>
-            <button class="mode-btn" onclick="setMode('strata')" title="Vegetation Strata Classification - High/Medium/Low tree coverage category"><i class="fa-solid fa-layer-group"></i> Strata</button>
+            <button class="mode-btn" onclick="setMode('simd')" title="Scottish Index of Multiple Deprivation - Neighbourhood deprivation level (1=most deprived, 10=least)"><i class="fa-solid fa-house-user"></i> SIMD Decile</button>
+            <button class="mode-btn" onclick="setMode('strata')" title="Tree Cover Classification - High/Medium/Low tree coverage category"><i class="fa-solid fa-layer-group"></i> Tree Cover</button>
         </div>
 
         <!-- Edinburgh SIMD Background Toggle -->
         <div style="padding: 15px 20px; border-bottom: 1px solid var(--border);">
             <div style="font-size: 10px; color: #64748b; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">City-wide SIMD</div>
             <button id="simd-bg-btn" onclick="toggleSIMDBackground()" title="Toggle city-wide SIMD background layer showing neighbourhood deprivation across Edinburgh" style="width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s;">
-                <i class="fa-solid fa-layer-group"></i> Edinburgh Deprivation Map
+                <i class="fa-solid fa-layer-group"></i> Neighbourhood Social Deprivation
             </button>
         </div>
 
@@ -1398,7 +1461,7 @@
         <div class="map-legend" id="simd-legend" style="display: none; bottom: 250px;">
             <div class="map-legend-title">SIMD Deprivation</div>
             <div class="legend-item-map">
-                <div class="legend-color-map" style="background: #ef4444;"></div>
+                <div class="legend-color-map" style="background: #ea580c;"></div>
                 <span>Most Deprived (1-2)</span>
             </div>
             <div class="legend-item-map">
@@ -1410,11 +1473,11 @@
                 <span>Medium (5-6)</span>
             </div>
             <div class="legend-item-map">
-                <div class="legend-color-map" style="background: #84cc16;"></div>
+                <div class="legend-color-map" style="background: #fde047;"></div>
                 <span>Low (7-8)</span>
             </div>
             <div class="legend-item-map">
-                <div class="legend-color-map" style="background: #22c55e;"></div>
+                <div class="legend-color-map" style="background: #fef9c3;"></div>
                 <span>Least Deprived (9-10)</span>
             </div>
         </div>
@@ -1434,13 +1497,12 @@
                     <i class="fas fa-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 12px;"></i>
                 </div>
                 <div class="report-nav-links">
-                    <a href="#report-intro">Introduction</a>
+                    <a href="#report-motivation">Introduction</a>
                     <a href="#report-methods">Methods</a>
                     <a href="#report-results">Results</a>
                     <a href="#report-conclusions">Conclusions</a>
                     <a href="#report-sources">Sources</a>
                     <a href="#report-team">Team</a>
-                    <a href="#" onclick="openFeedbackModal(); return false;" style="color: #fff; font-weight: 600;">Feedback</a>
                     <a href="#" onclick="switchPage('map'); return false;" style="color: #000; font-weight: 700; margin-right: 20px;">Interactive Map</a>
                 </div>
             </div>
@@ -1449,12 +1511,30 @@
         <!-- Hero Section -->
         <section class="report-hero">
             <div class="report-hero-content">
-                <h1>Dead Space?</h1>
-                <p class="subtitle">What graveyards tell us about carbon and communities</p>
-                <div style="display: flex; justify-content: space-between; gap: 30px; margin-top: 40px; width: 100%; padding: 0 40px;">
-                    <img src="/dev/group1project/static/report_images/image3.jpg" alt="Graveyard 1" loading="lazy" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
-                    <img src="/dev/group1project/static/report_images/image1.jpg" alt="Graveyard 2" loading="lazy" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
-                    <img src="/dev/group1project/static/report_images/image7.jpg" alt="Graveyard 3" loading="lazy" style="flex: 1; width: 33%; height: auto; object-fit: cover; border-radius: 12px; cursor: pointer;" onclick="openImageModal(this.src)">
+                <h1>Edinburgh's Cemeteries Carbon Storage</h1>
+                <p class="subtitle">Tourism, biodiversity and wellbeing are just some of the benefits of graveyards, but what about carbon storage?</p>
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 30px; margin-bottom: 40px;">
+                    <a href="#" onclick="openFeedbackModal(); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s;"
+                        onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='transparent'; this.style.color='#2d3436'">GET INVOLVED</a>
+                    <a href="#" onclick="switchPage('map'); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s;"
+                        onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='transparent'; this.style.color='#2d3436'">INTERACTIVE WEBMAP</a>
+                </div>
+            </div>
+        </section>
+        <section id="report-motivation" class="report-section" style="background: #f1f3f5;">
+            <div class="report-container">
+                <h2 class="report-section-title">The Motivation of <span>Our Study</span></h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: stretch;">
+                    <div style="text-align: left; display: flex; flex-direction: column; justify-content: space-between; padding: 15px 0;">
+                        <p style="font-size: 20px; font-weight: 700; color: #2d3436; margin: 0; line-height: 1.5;">In 2022, Edinburgh produced 2,192 thousand tonnes of CO<sub>2</sub> equivalent.</p>
+                        <p style="font-size: 16px; color: #2d3436; margin: 0; line-height: 1.8;">The city of Edinburgh has promised to be a net-zero city by 2030, which included the aim to 'sequester carbon where possible'.</p>
+                        <p style="font-size: 16px; color: #2d3436; margin: 0; line-height: 1.8;">A study in London found urban graveyards can store as much carbon per hectare as temperate and tropical forests so, can Edinburgh's graveyards do the same?</p>
+                        <p style="font-size: 16px; color: #2d3436; line-height: 1.8;">Our study investigates the above ground carbon storage across 35 cemeteries in Edinburgh, with the aim to either prove or disprove their value as a carbon sink. Then, compare carbon values to our own environmental deprivation index
+                            (EDI) and the Scottish index of multiple deprivation (SIMD) to identify priority areas that can be enhanced, protected and restored.</p>
+                    </div>
+                    <div>
+                        <img src="/dev/group1project/static/report_images/image1.jpg" alt="Edinburgh Cemetery" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); cursor: pointer;" onclick="openImageModal(this.src)">
+                    </div>
                 </div>
             </div>
         </section>
@@ -1483,205 +1563,366 @@
             </div>
         </section>
 
-        <!-- Study Area -->
-        <section class="report-section" style="background: #f1f3f5;">
-            <div class="report-container">
-                <h2 class="report-section-title">Study <span>Area</span></h2>
-                <div class="report-content-card">
-                    <div class="report-card-image">
-                        <img src="/dev/group1project/static/report_images/image2.png" alt="Study Area">
-                    </div>
-                    <div class="report-card-content">
-                        <p>Edinburgh's graveyards represent a unique yet understudied subset of greenspaces with great potential as carbon vaults.</p>
-                        <ul>
-                            <li>35 publicly accessible graveyards examined</li>
-                            <li>Conducted for CSGN and City of Edinburgh Council</li>
-                            <li>Focus on above-ground carbon storage</li>
-                            <li>Goal: Identify priority sites for greenspace investment</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Methods -->
         <section id="report-methods" class="report-section" style="background: #f1f3f5;">
             <div class="report-container">
-                <h2 class="report-section-title">Research <span>Methods</span></h2>
-                <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
-                    <div class="report-card-content" style="padding: 30px;">
-                        <h3>Fieldwork & Data Collection</h3>
-                        <p>Ground data collected from 5-8 November using stratified random sampling across nine graveyards representing low, medium, and high tree coverage.</p>
-                        <ul>
-                            <li>63 plots surveyed (5m radius each)</li>
-                            <li>Tree species, condition, and DBH recorded</li>
-                            <li>LiDAR-derived canopy height model (0.5m resolution)</li>
-                            <li>Sentinel-2 NDVI for vegetation greenness</li>
-                        </ul>
-                    </div>
-                    <p style="padding: 0 30px 15px; color: #636e72; font-size: 14px; text-align: center;">Vegetation maps used to qualitatively class graveyards as low, medium and high tree cover. Three sites were chosen to represent each class.</p>
-                    <div style="display: flex; justify-content: space-evenly; align-items: flex-start; padding: 0 30px 30px;">
-                        <img src="/dev/group1project/static/report_images/image4.png" alt="Low tree cover" style="width: 30%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                        <img src="/dev/group1project/static/report_images/image5.png" alt="Medium tree cover" style="width: 30%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                        <img src="/dev/group1project/static/report_images/image8.png" alt="High tree cover" style="width: 30%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                <h2 class="report-section-title">Our <span>Methods</span></h2>
+
+                <!-- Method Tabs -->
+                <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap;">
+                    <button onclick="showMethodTab(1)" id="method-tab-1" style="padding: 15px 30px; border: none; background: linear-gradient(135deg, #1e3a5f, #0891b2); color: #fff; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(30, 58, 95, 0.3); display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-tree"></i> Collecting Ground Data
+                    </button>
+                    <button onclick="showMethodTab(2)" id="method-tab-2" style="padding: 15px 30px; border: 2px solid #1e3a5f; background: #fff; color: #1e3a5f; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-satellite"></i> Upscaling with Satellites
+                    </button>
+                    <button onclick="showMethodTab(3)" id="method-tab-3" style="padding: 15px 30px; border: 2px solid #1e3a5f; background: #fff; color: #1e3a5f; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-calculator"></i> Our EDI
+                    </button>
+                </div>
+
+                <!-- Tab 1: Collecting Ground Data -->
+                <div id="method-content-1" style="display: block;">
+                    <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
+                        <div class="report-card-content" style="padding: 30px;">
+                            <h3 style="font-size: 24px; color: #1e3a5f; margin-bottom: 15px;">Collecting Ground Data</h3>
+                            <p style="font-size: 16px; line-height: 1.8;">Fieldwork was conducted at 9 different graveyards, which were split into three categories: low, medium, and high tree cover. These were classified using satellite imagery like the ones shown below:</p>
+                        </div>
+                        <p style="font-size: 14px; color: #636e72; margin-bottom: 10px; text-align: center; padding: 0 30px;"><i class="fas fa-hand-pointer" style="margin-right: 8px;"></i>Click each image to flip between satellite view and field photo</p>
+                        <div style="display: flex; justify-content: space-evenly; align-items: flex-start; padding: 0 30px 20px; gap: 15px;">
+                            <!-- Flip Card 1: Low tree cover -->
+                            <div class="flip-card" onclick="flipCard(this)" style="width: 30%; cursor: pointer; perspective: 1000px;">
+                                <div class="flip-card-inner" style="position: relative; width: 100%; height: 280px; transition: transform 0.6s; transform-style: preserve-3d;">
+                                    <div class="flip-card-front" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; overflow: hidden;">
+                                        <img src="/dev/group1project/static/report_images/image4.png" alt="Low tree cover - Satellite" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 10px; color: #fff; font-size: 12px;">
+                                            <i class="fas fa-satellite"></i> Low Tree Cover
+                                        </div>
+                                    </div>
+                                    <div class="flip-card-back" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); border-radius: 8px; overflow: hidden;">
+                                        <img src="/dev/group1project/static/report_images/image3.jpg" alt="Low tree cover - Field" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 10px; color: #fff; font-size: 12px;">
+                                            <i class="fas fa-camera"></i> Field Photo
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Flip Card 2: Medium tree cover -->
+                            <div class="flip-card" onclick="flipCard(this)" style="width: 30%; cursor: pointer; perspective: 1000px;">
+                                <div class="flip-card-inner" style="position: relative; width: 100%; height: 280px; transition: transform 0.6s; transform-style: preserve-3d;">
+                                    <div class="flip-card-front" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; overflow: hidden;">
+                                        <img src="/dev/group1project/static/report_images/image5.png" alt="Medium tree cover - Satellite" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 10px; color: #fff; font-size: 12px;">
+                                            <i class="fas fa-satellite"></i> Medium Tree Cover
+                                        </div>
+                                    </div>
+                                    <div class="flip-card-back" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); border-radius: 8px; overflow: hidden;">
+                                        <img src="/dev/group1project/static/report_images/image6.jpg" alt="Medium tree cover - Field" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 10px; color: #fff; font-size: 12px;">
+                                            <i class="fas fa-camera"></i> Field Photo
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Flip Card 3: High tree cover -->
+                            <div class="flip-card" onclick="flipCard(this)" style="width: 30%; cursor: pointer; perspective: 1000px;">
+                                <div class="flip-card-inner" style="position: relative; width: 100%; height: 280px; transition: transform 0.6s; transform-style: preserve-3d;">
+                                    <div class="flip-card-front" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; overflow: hidden;">
+                                        <img src="/dev/group1project/static/report_images/image8.png" alt="High tree cover - Satellite" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 10px; color: #fff; font-size: 12px;">
+                                            <i class="fas fa-satellite"></i> High Tree Cover
+                                        </div>
+                                    </div>
+                                    <div class="flip-card-back" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); border-radius: 8px; overflow: hidden;">
+                                        <img src="/dev/group1project/static/report_images/image7.jpg" alt="High tree cover - Field" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); padding: 10px; color: #fff; font-size: 12px;">
+                                            <i class="fas fa-camera"></i> Field Photo
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="padding: 0 30px 30px; color: #2d3436; font-size: 16px; line-height: 1.8;">63 plots, with a radius of 5m, were taken across these 9 graveyards and chosen using stratified random sampling. Tree species, condition, and DBH (diameter at breast height) were recorded for each tree found in these plots. These
+                            values were then input into equations to calculate the above-ground biomass, which is then used to calculate carbon content.</p>
                     </div>
                 </div>
-                <div class="report-stats">
-                    <div class="report-stat">
-                        <div class="report-stat-value">63</div>
-                        <div class="report-stat-label">Survey Plots</div>
+
+                <!-- Tab 2: Upscaling with Satellites -->
+                <div id="method-content-2" style="display: none;">
+                    <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
+                        <div class="report-card-content" style="padding: 30px;">
+                            <h3 style="font-size: 24px; color: #1e3a5f; margin-bottom: 15px;">Upscaling Ground Data Using Satellites</h3>
+                            <p style="font-size: 16px; line-height: 1.8; margin-bottom: 20px;">Scottish Government LiDAR satellite data let us calculate the average tree height at each cemetery. Combining this data with field measurements, we could scale our carbon estimates city-wide.</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div style="background: #fff; padding: 20px; border-radius: 12px; border-left: 4px solid #1e3a5f;">
+                                    <h4 style="color: #1e3a5f; margin-bottom: 10px;"><i class="fas fa-chart-line" style="margin-right: 8px;"></i>Calibration</h4>
+                                    <p style="font-size: 14px; color: #636e72; line-height: 1.7;">70% of field data was plotted on a graph to establish the relationship between canopy height and carbon density (carbon in tonnes per hectare, or Mg/ha).</p>
+                                </div>
+                                <div style="background: #fff; padding: 20px; border-radius: 12px; border-left: 4px solid #0891b2;">
+                                    <h4 style="color: #0891b2; margin-bottom: 10px;"><i class="fas fa-check-circle" style="margin-right: 8px;"></i>Validation</h4>
+                                    <p style="font-size: 14px; color: #636e72; line-height: 1.7;">The remaining data was plotted in another graph to test the calibration model's accuracy.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="report-stat">
-                        <div class="report-stat-value">9</div>
-                        <div class="report-stat-label">Graveyards Sampled</div>
-                    </div>
-                    <div class="report-stat">
-                        <div class="report-stat-value">0.5m</div>
-                        <div class="report-stat-label">LiDAR Resolution</div>
-                    </div>
-                    <div class="report-stat">
-                        <div class="report-stat-value">70%</div>
-                        <div class="report-stat-label">Calibration Data</div>
+                </div>
+
+                <!-- Tab 3: Our EDI -->
+                <div id="method-content-3" style="display: none;">
+                    <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
+                        <div class="report-card-content" style="padding: 30px;">
+                            <h3 style="font-size: 24px; color: #1e3a5f; margin-bottom: 15px;">Our EDI</h3>
+                            <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">To represent environmental deprivation, we combined the calculated carbon values with tree height and canopy cover from LiDAR data and NDVI (vegetation health) data from the Sentinel-2 satellite like this:</p>
+                            <div style="text-align: center; margin-bottom: 25px;">
+                                <img src="/dev/group1project/static/report_images/image11.png" alt="EDI Formula" style="max-width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                            </div>
+                            <p style="font-size: 16px; line-height: 1.8; color: #2d3436;">These results were then ranked and compared to SIMD to help identify priority areas. <strong>Low scores show high environmental deprivation</strong> and <strong>high scores show low environmental deprivation</strong>.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
+        <script>
+            function showMethodTab(tabNum) {
+                for (var i = 1; i <= 3; i++) {
+                    document.getElementById('method-content-' + i).style.display = 'none';
+                    var tab = document.getElementById('method-tab-' + i);
+                    tab.style.background = '#fff';
+                    tab.style.color = '#1e3a5f';
+                    tab.style.border = '2px solid #1e3a5f';
+                    tab.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
+                }
+                document.getElementById('method-content-' + tabNum).style.display = 'block';
+                var activeTab = document.getElementById('method-tab-' + tabNum);
+                activeTab.style.background = 'linear-gradient(135deg, #1e3a5f, #0891b2)';
+                activeTab.style.color = '#fff';
+                activeTab.style.border = 'none';
+                activeTab.style.boxShadow = '0 4px 15px rgba(30, 58, 95, 0.3)';
+            }
+
+            function switchFieldImage(src) {
+                document.getElementById('field-main-image').src = src;
+                // Update thumbnail borders
+                var thumbs = document.querySelectorAll('#method-content-1 [onclick*="switchFieldImage"]');
+                thumbs.forEach(function(thumb) {
+                    if (thumb.src === src) {
+                        thumb.style.border = '3px solid #1e3a5f';
+                    } else {
+                        thumb.style.border = '3px solid transparent';
+                    }
+                });
+            }
+
+            function flipCard(card) {
+                var inner = card.querySelector('.flip-card-inner');
+                if (inner.style.transform === 'rotateY(180deg)') {
+                    inner.style.transform = 'rotateY(0deg)';
+                } else {
+                    inner.style.transform = 'rotateY(180deg)';
+                }
+            }
+        </script>
+
+        <!-- Results -->
         <section id="report-results" class="report-section" style="background: #fff;">
             <div class="report-container">
                 <h2 class="report-section-title">Research <span>Results</span></h2>
-                <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
-                    <div style="padding: 30px;">
-                        <h3 style="font-family: 'EB Garamond', serif; font-size: 28px; color: #2d3436; margin-bottom: 20px; text-align: center;">Carbon Estimation Models</h3>
-                        <p style="color: #2d3436; margin-bottom: 15px;">Scatterplots showing calibration and validation of LiDAR-derived carbon estimates. Both models show weak positive relationships between canopy height and carbon density.</p>
-                        <ul style="color: #2d3436; margin-bottom: 20px; padding-left: 25px;">
-                            <li>Calibration Mean Error: 71.54 Mg/ha</li>
-                            <li>Validation Mean Error: 68.23 Mg/ha</li>
-                            <li>RMSE values exceed UK woodland average (53.6 Mg/ha)</li>
-                            <li>Results indicate systematic overestimation</li>
-                        </ul>
-                        <img src="/dev/group1project/static/report_images/image12.png" alt="Carbon Estimation" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 30px 30px;">
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
-                            <h4 style="color: #1e3a5f; margin-bottom: 10px;"><i class="fas fa-chart-line" style="margin-right: 8px;"></i>Calibration Model</h4>
-                            <p style="font-size: 14px; color: #636e72; margin-bottom: 10px;">Uses 70% of field data to establish relationship between canopy height and carbon density.</p>
-                            <ul style="font-size: 13px; color: #2d3436; padding-left: 20px;">
-                                <li>Mean Error: 71.54 Mg/ha</li>
-                                <li>R&sup2; = 0.24</li>
-                                <li>Weak positive correlation</li>
-                            </ul>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;">
+                    <!-- Left: Image Carousel -->
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <!-- Left Arrow -->
+                            <button onclick="changeResultsSlide(-1)" style="background: rgba(45,106,79,0.1); border: 2px solid #2d6a4f; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; color: #2d6a4f; flex-shrink: 0; transition: all 0.3s;" onmouseover="this.style.background='#2d6a4f'; this.style.color='#fff'"
+                                onmouseout="this.style.background='rgba(45,106,79,0.1)'; this.style.color='#2d6a4f'">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+
+                            <!-- Image Container -->
+                            <div style="position: relative; flex: 1; overflow: hidden; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                                <!-- Page Counter Top-Left -->
+                                <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 12px; z-index: 10; font-weight: 600;">
+                                    <span id="results-slide-counter">1</span> / 5
+                                </div>
+                                <img id="results-slide-1" src="/dev/group1project/static/report_images/image.65.png" alt="Calibration" style="width: 100%; display: block; cursor: pointer;" onclick="openImageModal(this.src)">
+                                <img id="results-slide-2" src="/dev/group1project/static/report_images/image.66.png" alt="Validation" style="width: 100%; display: none; cursor: pointer;" onclick="openImageModal(this.src)">
+                                <img id="results-slide-3" src="/dev/group1project/static/report_images/image13.png" alt="Calibration vs Validation" style="width: 100%; display: none; cursor: pointer;" onclick="openImageModal(this.src)">
+                                <img id="results-slide-4" src="/dev/group1project/static/report_images/image64.png" alt="EDI Rankings Table" style="width: 100%; display: none; cursor: pointer;" onclick="openImageModal(this.src)">
+                                <img id="results-slide-5" src="/dev/group1project/static/report_images/image15.png" alt="SIMD & EDI Map" style="width: 100%; display: none; cursor: pointer;" onclick="openImageModal(this.src)">
+                            </div>
+
+                            <!-- Right Arrow -->
+                            <button onclick="changeResultsSlide(1)" style="background: rgba(45,106,79,0.1); border: 2px solid #2d6a4f; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; color: #2d6a4f; flex-shrink: 0; transition: all 0.3s;" onmouseover="this.style.background='#2d6a4f'; this.style.color='#fff'"
+                                onmouseout="this.style.background='rgba(45,106,79,0.1)'; this.style.color='#2d6a4f'">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
                         </div>
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
-                            <h4 style="color: #0891b2; margin-bottom: 10px;"><i class="fas fa-check-circle" style="margin-right: 8px;"></i>Validation Model</h4>
-                            <p style="font-size: 14px; color: #636e72; margin-bottom: 10px;">Tests model accuracy using remaining 30% of field data.</p>
-                            <ul style="font-size: 13px; color: #2d3436; padding-left: 20px;">
-                                <li>Mean Error: 68.23 Mg/ha</li>
-                                <li>RMSE exceeds UK average (53.6 Mg/ha)</li>
-                                <li>Systematic overestimation</li>
-                            </ul>
+                        <p id="results-caption" style="text-align: left; font-size: 14px; color: #555; margin-top: 15px; font-style: italic;">Figure 1. Calibration model showing relationship between canopy height and carbon density.</p>
+                    </div>
+
+                    <!-- Right: Numbered Dropdown Headings -->
+                    <div>
+                        <p style="font-size: 12px; color: #2d6a4f; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; margin-bottom: 10px;">FINDINGS</p>
+                        <h3 id="results-title" style="font-size: 28px; color: #2d3436; font-weight: 700; margin-bottom: 30px; line-height: 1.3;">Results Show Carbon Storage Potential</h3>
+
+                        <!-- Item 1 -->
+                        <div style="border-bottom: 1px solid #e0e0e0; padding: 15px 0;">
+                            <button onclick="toggleResultsDropdown(1)" style="display: flex; align-items: center; gap: 15px; width: 100%; background: none; border: none; cursor: pointer; text-align: left;">
+                                <span id="results-num-1" style="min-width: 32px; height: 32px; border: 2px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: #666; transition: all 0.3s;">1</span>
+                                <span id="results-title-1" style="font-size: 18px; font-weight: 700; color: #2d3436;">Calibration and Validation</span>
+                            </button>
+                            <div id="results-dropdown-1" style="display: none; padding: 15px 0 5px 47px; color: #555; font-size: 15px; line-height: 1.8;">
+                                Calibration and validation models show the bias and accuracy (RMSE) of the predicted and observed results.<br><br> Both models show a weak positive relationship, with the calibration model showing a higher RMSE, suggesting
+                                errors took place during fieldwork, which lead to errors in the predictive results from LiDAR.<br><br> When compared together, you can see that calibration carbon estimates are often twice as high as validation estimates.
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="report-content-card reverse">
-                    <div class="report-card-image">
-                        <img src="/dev/group1project/static/report_images/image14.png" alt="Deprivation Analysis" style="cursor: pointer;" onclick="openImageModal(this.src)">
-                    </div>
-                    <div class="report-card-content">
-                        <h3>Deprivation Analysis</h3>
-                        <p>Overlaying Environmental Deprivation Index (EDI) scores with SIMD 2020 neighbourhood ranks reveals spatial patterns of environmental and social deprivation.</p>
-                        <ul>
-                            <li>Darker colours indicate greater deprivation</li>
-                            <li>Craigmillar Castle Park in high social deprivation cluster</li>
-                            <li>EDI scores generally conform to tree cover</li>
-                            <li>Notable exception: grassy areas ranked with leafy counterparts</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="report-content-card">
-                    <div class="report-card-image">
-                        <img src="/dev/group1project/static/report_images/image15.png" alt="Spatial Cluster Analysis" style="cursor: pointer;" onclick="openImageModal(this.src)">
-                    </div>
-                    <div class="report-card-content">
-                        <h3>Spatial Cluster Analysis</h3>
-                        <p>Anselin Local Moran's I analysis identifies neighbourhood clusters and outliers of social deprivation, with EDI values highlighting environmentally deprived graveyards.</p>
-                        <ul>
-                            <li>No top-15 environmentally-deprived sites in social hotspots</li>
-                            <li>Only Buccleuch in significant social-deprivation outlier</li>
-                            <li>Limited alignment between two deprivation measures</li>
-                            <li>SIMD provides more fruitful short-term approach</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
-                    <div class="report-card-content" style="padding: 30px;">
-                        <h3>Beyond Carbon Storage</h3>
-                        <p>Field observations revealed graveyards deliver cultural, quality of life and biodiversity value beyond just carbon storage.</p>
-                        <ul>
-                            <li>Benches, bird boxes, and beehives observed</li>
-                            <li>334 species recorded in Grange Cemetery alone</li>
-                            <li>Tourist-historic value (e.g., Greyfriars Bobby)</li>
-                            <li>Recreational and tranquil greenspace benefits</li>
-                        </ul>
-                    </div>
-                    <div style="display: flex; gap: 20px; padding: 0 30px 30px;">
-                        <img src="/dev/group1project/static/report_images/image21.jpg" alt="Beyond Carbon Storage" style="width: 50%; height: auto; object-fit: cover; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                        <img src="/dev/group1project/static/report_images/image20.jpg" alt="Beyond Carbon Storage 2" style="width: 50%; height: auto; object-fit: contain; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+
+                        <!-- Item 2 -->
+                        <div style="border-bottom: 1px solid #e0e0e0; padding: 15px 0;">
+                            <button onclick="toggleResultsDropdown(2)" style="display: flex; align-items: center; gap: 15px; width: 100%; background: none; border: none; cursor: pointer; text-align: left;">
+                                <span id="results-num-2" style="min-width: 32px; height: 32px; border: 2px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: #666; transition: all 0.3s;">2</span>
+                                <span id="results-title-2" style="font-size: 18px; font-weight: 700; color: #2d3436; transition: all 0.3s;">EDI Rankings</span>
+                            </button>
+                            <div id="results-dropdown-2" style="display: none; padding: 15px 0 5px 47px; color: #555; font-size: 15px; line-height: 1.8;">
+                                These are the 5 cemeteries that have the lowest EDI score according to our equation.
+                            </div>
+                        </div>
+
+                        <!-- Item 3 -->
+                        <div style="padding: 15px 0;">
+                            <button onclick="toggleResultsDropdown(3)" style="display: flex; align-items: center; gap: 15px; width: 100%; background: none; border: none; cursor: pointer; text-align: left;">
+                                <span id="results-num-3" style="min-width: 32px; height: 32px; border: 2px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: #666; transition: all 0.3s;">3</span>
+                                <span id="results-title-3" style="font-size: 18px; font-weight: 700; color: #2d3436;">SIMD and EDI</span>
+                            </button>
+                            <div id="results-dropdown-3" style="display: none; padding: 15px 0 5px 47px; color: #555; font-size: 15px; line-height: 1.8;">
+                                There is no strong spatial relationship between our EDI and SIMD. None of the 15 most environmentally deprived cemeteries are situated in a highly deprived neighbourhood, apart from Buccleuch cemetery.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <script>
+            var currentResultsSlide = 1;
+            var resultsCaptions = [
+                'Figure 1. Calibration model showing relationship between canopy height and carbon density.',
+                'Figure 2. Validation model testing accuracy using remaining field data.',
+                'Figure 3. Calibration vs Validation comparison of carbon estimates.',
+                'Figure 4. EDI Rankings showing the 5 cemeteries with lowest environmental scores.',
+                'Figure 5. SIMD and EDI spatial analysis map of Edinburgh graveyards.'
+            ];
+
+            function changeResultsSlide(direction) {
+                document.getElementById('results-slide-' + currentResultsSlide).style.display = 'none';
+                currentResultsSlide += direction;
+                if (currentResultsSlide > 5) currentResultsSlide = 1;
+                if (currentResultsSlide < 1) currentResultsSlide = 5;
+                document.getElementById('results-slide-' + currentResultsSlide).style.display = 'block';
+                document.getElementById('results-slide-counter').textContent = currentResultsSlide;
+                document.getElementById('results-caption').textContent = resultsCaptions[currentResultsSlide - 1];
+            }
+
+            function toggleResultsDropdown(num) {
+                var content = document.getElementById('results-dropdown-' + num);
+                var numSpan = document.getElementById('results-num-' + num);
+                var titleSpan = document.getElementById('results-title-' + num);
+                var isOpen = content.style.display !== 'none';
+                content.style.display = isOpen ? 'none' : 'block';
+                if (isOpen) {
+                    numSpan.style.background = 'transparent';
+                    numSpan.style.color = '#666';
+                    numSpan.style.border = '2px solid #ccc';
+                    titleSpan.style.color = '#2d3436';
+                } else {
+                    numSpan.style.background = '#2d6a4f';
+                    numSpan.style.color = '#fff';
+                    numSpan.style.border = '2px solid #2d6a4f';
+                    titleSpan.style.color = '#34C759';
+                }
+            }
+        </script>
 
         <!-- Conclusions -->
         <section id="report-conclusions" class="report-section" style="background: #f1f3f5;">
             <div class="report-container">
-                <h2 class="report-section-title">Key <span>Findings</span></h2>
-                <div class="report-key-points" style="margin-bottom: 60px;">
-                    <div class="report-key-point">
-                        <i class="fas fa-tree"></i>
-                        <h4>35 Graveyards</h4>
-                        <p>Public cemeteries examined across Edinburgh for carbon storage potential</p>
-                    </div>
-                    <div class="report-key-point">
-                        <i class="fas fa-chart-line"></i>
-                        <h4>Large Bias</h4>
-                        <p>Mean Error: 71.54 Mg/ha, exceeding UK woodland average</p>
-                    </div>
-                    <div class="report-key-point">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <h4>Limited Overlap</h4>
-                        <p>Environmental and social deprivation measures show minimal alignment</p>
-                    </div>
-                </div>
-                <h2 class="report-section-title">Recommendations</h2>
-                <p style="text-align: center; max-width: 700px; margin: 0 auto 40px; color: #2d3436;">
-                    Carbon estimates cannot be considered reliable. EDI is not yet suitable for targeting priority areas. However, graveyards provide valuable benefits uncaptured by current metrics.
-                </p>
-                <div class="report-recommendations">
-                    <div class="report-rec-item">
-                        <div class="report-rec-number">1</div>
-                        <div class="report-rec-content">
-                            <h4>Prioritise Social Deprivation Hotspots</h4>
-                            <p>Short-term funding should highlight sites in SIMD clusters as high-impact opportunities for greenspace protection and enhancement.</p>
+                <h2 class="report-section-title">Our <span>Conclusions</span></h2>
+
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; align-items: start;">
+                    <!-- Left: Tabs and Content -->
+                    <div>
+                        <!-- Tab Links -->
+                        <div style="margin-bottom: 30px;">
+                            <button onclick="showConclusionTab(1)" id="conclusion-tab-1" style="display: block; width: 100%; text-align: left; padding: 12px 0; background: none; border: none; cursor: pointer; font-size: 18px; font-weight: 600; color: #2d6a4f; transition: all 0.3s;">
+                                <i class="fas fa-star" style="color: #2d6a4f; margin-right: 10px;"></i> Conclusions
+                            </button>
+                            <button onclick="showConclusionTab(2)" id="conclusion-tab-2" style="display: block; width: 100%; text-align: left; padding: 12px 0; background: none; border: none; cursor: pointer; font-size: 18px; font-weight: 400; color: #636e72; transition: all 0.3s;">
+                                <i class="fas fa-lightbulb" style="margin-right: 10px;"></i> Recommendations
+                            </button>
+                            <button onclick="showConclusionTab(3)" id="conclusion-tab-3" style="display: block; width: 100%; text-align: left; padding: 12px 0; background: none; border: none; cursor: pointer; font-size: 18px; font-weight: 400; color: #636e72; transition: all 0.3s;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 10px;"></i> Limitations & Challenges
+                            </button>
+                        </div>
+
+                        <!-- Content Areas -->
+                        <div id="conclusion-content-1" style="display: block;">
+                            <h4 style="font-size: 20px; color: #2d3436; margin-bottom: 20px; font-weight: 600;">Overall Conclusions</h4>
+                            <ul style="list-style: disc; padding-left: 20px; margin: 0;">
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;">Our study shows inconclusive results and cannot demonstrate that Edinburgh's graveyards serve as important carbon sinks due to the unreliable ground data.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;">Spatial analysis showed a minimal alignment between environmental and social deprivation, due to the uncertainty affecting our EDI equation, these results are inaccurate.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;">Field observations confirmed the cultural, recreational and biodiversity benefits of graveyards.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8;">The methods used are promising, if more robust fieldwork takes place.</li>
+                            </ul>
+                        </div>
+                        <div id="conclusion-content-2" style="display: none;">
+                            <h4 style="font-size: 20px; color: #2d3436; margin-bottom: 20px; font-weight: 600;">Recommendations</h4>
+                            <ul style="list-style: disc; padding-left: 20px; margin: 0;">
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Invest where there will be the greatest impact</strong><br>Using SIMD, prioritise greenspace funding in social deprivation hotspots to maximise climate, biodiversity and social-equity gains.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Enhance EDI</strong><br>Further improvements should be made to our EDI measure to include local access to greenspace and health-supporting ecosystem services. This will better represent greenspaces many roles.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8;"><strong>Combine multiple datasets for better decisions</strong><br>Tackling social and environmental deprivation takes more than just one measure. Combining social datasets like SIMD with environmental ones will lead to
+                                    a long-term way in guiding greenspace funding decisions.</li>
+                            </ul>
+                        </div>
+                        <div id="conclusion-content-3" style="display: none;">
+                            <h4 style="font-size: 20px; color: #2d3436; margin-bottom: 20px; font-weight: 600;">Limitations & Challenges</h4>
+                            <p style="font-size: 15px; color: #2d3436; margin-bottom: 15px;">Our study faced a few challenges including:</p>
+                            <ul style="list-style: disc; padding-left: 20px; margin: 0;">
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Time</strong><br>The lack of time meant less fieldwork measurements, with more data, our results would be more accurate.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Identifying tree species</strong><br>Due to the time of year fieldwork took place (Autumn) it was hard to identify tree species which affects biomass calculations as each different species has a different biomass
+                                    equation.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8;"><strong>No calibrated biomass map for Edinburgh</strong><br>This meant LiDAR had to be used, which is time consuming and difficult to work with. If there was a calibrated biomass map of Edinburgh, the method used for this
+                                    study would be easier and quicker to complete.</li>
+                            </ul>
                         </div>
                     </div>
-                    <div class="report-rec-item">
-                        <div class="report-rec-number">2</div>
-                        <div class="report-rec-content">
-                            <h4>Develop Broader Environmental Index</h4>
-                            <p>Incorporate accessibility to greenspace and ecosystem services to better represent lived experience. Validate with reliable ground data.</p>
-                        </div>
-                    </div>
-                    <div class="report-rec-item">
-                        <div class="report-rec-number">3</div>
-                        <div class="report-rec-content">
-                            <h4>Combine Multiple Datasets</h4>
-                            <p>Use spatial analysis of SIMD with environmental data as a long-term method for identifying communities impacted by multiple deprivations.</p>
-                        </div>
+
+                    <!-- Right: Map Image (right half of image14) -->
+                    <div style="overflow: hidden; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+                        <img src="/dev/group1project/static/report_images/image14.png" alt="Edinburgh Map" style="width: 100%; height: auto; display: block; cursor: pointer;" onclick="openImageModal(this.src)">
                     </div>
                 </div>
             </div>
         </section>
+
+        <script>
+            function showConclusionTab(tabNum) {
+                // Hide all content
+                for (var i = 1; i <= 3; i++) {
+                    document.getElementById('conclusion-content-' + i).style.display = 'none';
+                    var tab = document.getElementById('conclusion-tab-' + i);
+                    tab.style.color = '#636e72';
+                    tab.style.fontWeight = '400';
+                    tab.querySelector('i').style.color = '#636e72';
+                }
+                // Show selected content
+                document.getElementById('conclusion-content-' + tabNum).style.display = 'block';
+                var activeTab = document.getElementById('conclusion-tab-' + tabNum);
+                activeTab.style.color = '#2d6a4f';
+                activeTab.style.fontWeight = '600';
+                activeTab.querySelector('i').style.color = '#2d6a4f';
+            }
+        </script>
 
         <!-- Sources -->
         <section id="report-sources" class="report-section" style="background: #fff;">
@@ -1751,8 +1992,7 @@
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">UNESCO, 2011. Old and New Towns of Edinburgh.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Wilkes, P., Disney, M., Vicari, M., Calders, K. and Burt, A., 2018. Estimating urban above ground biomass with multi-scale LiDAR. <em>Carbon Balance and Management</em>, 13: 10.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Zhang, J., de Gier, A., Xing, Y. and Sohn, G., 2011. Full waveform-based analysis for forest type information derivation from large footprint spaceborne lidar data. <em>Photogrammetric Engineering and Remote Sensing</em>, 77(3):
-                                281-290.
-                            </li>
+                                281-290.</li>
                         </ul>
                     </div>
                 </div>
@@ -1766,32 +2006,26 @@
                     <div class="report-team-member">
                         <img class="report-team-avatar-img" src="/dev/group1project/static/report_images/Alex Shaw.png" alt="Alex Shaw">
                         <h4>Alex Shaw</h4>
-                        <p>Researcher</p>
                     </div>
                     <div class="report-team-member">
                         <img class="report-team-avatar-img" src="/dev/group1project/static/report_images/Charlotte Thomson" alt="Charlotte Thomson">
                         <h4>Charlotte Thomson</h4>
-                        <p>Researcher</p>
                     </div>
                     <div class="report-team-member">
                         <img class="report-team-avatar-img" src="/dev/group1project/static/report_images/Lama Alqahtani" alt="Lama Alqahtani">
                         <h4>Lama Alqahtani</h4>
-                        <p>Researcher</p>
                     </div>
                     <div class="report-team-member">
                         <img class="report-team-avatar-img" src="/dev/group1project/static/report_images/Ollie Cavil" alt="Ollie Cavill">
                         <h4>Ollie Cavill</h4>
-                        <p>Researcher</p>
                     </div>
                     <div class="report-team-member">
                         <img class="report-team-avatar-img" src="/dev/group1project/static/report_images/Wu Xinxin" alt="Wu Xinxin">
                         <h4>Wu Xinxin</h4>
-                        <p>Researcher</p>
                     </div>
                     <div class="report-team-member">
                         <img class="report-team-avatar-img" src="/dev/group1project/static/report_images/Xiao Lang" alt="Xiao Lang">
                         <h4>Xiao Lang</h4>
-                        <p>Researcher</p>
                     </div>
                 </div>
             </div>
@@ -1807,7 +2041,7 @@
                         <span style="font-size: 10px;">Data: Scottish Government SIMD 2020, Scottish Remote Sensing Portal LiDAR, ESA Sentinel-2</span>
                     </div>
                     <div style="display: flex; gap: 15px; align-items: center;">
-                        <a href="https://github.com/langxiao323" target="_blank" style="color: #fff; font-size: 20px; opacity: 0.7; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" title="View Project on GitHub"><i class="fab fa-github"></i></a>
+                        <a href="https://github.com/langxiao323-lab/deploy-web" target="_blank" style="color: #fff; font-size: 20px; opacity: 0.7; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" title="View Project on GitHub"><i class="fab fa-github"></i></a>
                         <a href="mailto:s2835812@ed.ac.uk" style="color: #fff; font-size: 20px; opacity: 0.7; transition: opacity 0.3s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" title="Contact Us"><i class="fas fa-envelope"></i></a>
                         <span style="font-size: 13px; opacity: 0.8; margin-left: 10px;">Developed by <strong>Group 1</strong> | MSc GIS 2025</span>
                     </div>
@@ -1832,9 +2066,6 @@
                 document.getElementById('map-page').classList.add('active');
                 document.getElementById('report-page').classList.add('hidden');
                 document.getElementById('sidebar').classList.remove('hidden');
-                document.getElementById('btn-map').style.background = 'rgba(14, 165, 233, 0.2)';
-                document.getElementById('btn-map').style.borderColor = 'var(--neon-blue)';
-                document.getElementById('btn-map').style.color = 'var(--neon-blue)';
                 document.getElementById('btn-report').style.background = 'rgba(139, 92, 246, 0.1)';
                 document.getElementById('btn-report').style.borderColor = 'rgba(139, 92, 246, 0.5)';
                 document.getElementById('btn-report').style.color = 'rgba(139, 92, 246, 0.7)';
@@ -1851,9 +2082,6 @@
                 document.getElementById('map-page').classList.remove('active');
                 document.getElementById('report-page').classList.remove('hidden');
                 document.getElementById('sidebar').classList.add('hidden');
-                document.getElementById('btn-map').style.background = 'rgba(14, 165, 233, 0.1)';
-                document.getElementById('btn-map').style.borderColor = 'rgba(14, 165, 233, 0.5)';
-                document.getElementById('btn-map').style.color = 'rgba(14, 165, 233, 0.7)';
                 document.getElementById('btn-report').style.background = 'rgba(14, 165, 233, 0.2)';
                 document.getElementById('btn-report').style.borderColor = 'var(--neon-blue)';
                 document.getElementById('btn-report').style.color = 'var(--neon-blue)';
@@ -1915,7 +2143,7 @@
         var map = L.map('map', {
             zoomControl: false
         }).setView([55.9533, -3.1883], 12);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 19
         }).addTo(map);
 
@@ -1934,11 +2162,11 @@
             var color = '#94a3b8';
 
             // Color by decile (1=most deprived, 10=least deprived)
-            if (decile <= 2) color = '#ef4444'; // Red - most deprived
+            if (decile <= 2) color = '#ea580c'; // Dark orange - most deprived
             else if (decile <= 4) color = '#f97316'; // Orange
             else if (decile <= 6) color = '#fbbf24'; // Yellow
-            else if (decile <= 8) color = '#84cc16'; // Light green
-            else color = '#22c55e'; // Green - least deprived
+            else if (decile <= 8) color = '#fde047'; // Light yellow
+            else color = '#fef9c3'; // Pale yellow - least deprived
 
             return {
                 fillColor: color,
@@ -1992,12 +2220,12 @@
                 else if (agb > 20) color = '#34d399'; // Bright green
                 else color = '#fbbf24'; // Yellow
             } else if (currentMode === 'edi') {
-                // EDI: 0-45 range, high contrast
+                // EDI: 0-1 range (0=most deprived, 1=least deprived)
                 var edi = p.EDI || 0;
-                if (edi >= 30) color = '#1e3a5f'; // Dark blue (high EDI)
-                else if (edi >= 20) color = '#0891b2'; // Cyan
-                else if (edi >= 10) color = '#34d399'; // Bright green
-                else color = '#fbbf24'; // Yellow (low EDI)
+                if (edi >= 0.6) color = '#1e3a5f'; // Dark blue (least deprived)
+                else if (edi >= 0.4) color = '#0891b2'; // Cyan
+                else if (edi >= 0.25) color = '#34d399'; // Bright green
+                else color = '#fbbf24'; // Yellow (most deprived)
             } else if (currentMode === 'ndvi') {
                 // NDVI: 0-1 range, high contrast
                 var ndvi = p.NDVI || 0;
@@ -2014,11 +2242,11 @@
                 else color = '#fbbf24'; // Yellow
             } else if (currentMode === 'simd') {
                 // SIMD: 5-level classification matching background layer
-                if (p.SIMD <= 2) color = '#ef4444'; // Red - most deprived
+                if (p.SIMD <= 2) color = '#ea580c'; // Dark orange - most deprived
                 else if (p.SIMD <= 4) color = '#f97316'; // Orange
                 else if (p.SIMD <= 6) color = '#fbbf24'; // Yellow
-                else if (p.SIMD <= 8) color = '#84cc16'; // Light green
-                else color = '#22c55e'; // Green - least deprived
+                else if (p.SIMD <= 8) color = '#fde047'; // Light yellow
+                else color = '#fef9c3'; // Pale yellow - least deprived
             } else if (currentMode === 'strata') {
                 // Strata: high contrast
                 if (p.Strata === 'High') color = '#1e3a5f'; // Dark blue
@@ -2067,10 +2295,10 @@
                 document.getElementById('legend-map-2').style.background = '#0891b2';
                 document.getElementById('legend-map-3').style.background = '#34d399';
                 document.getElementById('legend-map-5').style.background = '#fbbf24';
-                document.getElementById('legend-map-1-text').textContent = 'High (>30)';
-                document.getElementById('legend-map-2-text').textContent = 'Med-High (20-30)';
-                document.getElementById('legend-map-3-text').textContent = 'Medium (10-20)';
-                document.getElementById('legend-map-5-text').textContent = 'Low (<10)';
+                document.getElementById('legend-map-1-text').textContent = 'Least Deprived (>0.6)';
+                document.getElementById('legend-map-2-text').textContent = 'Low Deprivation (0.4-0.6)';
+                document.getElementById('legend-map-3-text').textContent = 'Med Deprivation (0.25-0.4)';
+                document.getElementById('legend-map-5-text').textContent = 'Most Deprived (<0.25)';
             } else if (currentMode === 'ndvi') {
                 document.getElementById('legend-item-2').style.display = 'flex';
                 document.getElementById('legend-map-1').style.background = '#1e3a5f';
@@ -2095,11 +2323,11 @@
                 // SIMD mode: show all 5 legend items
                 document.getElementById('legend-item-2').style.display = 'flex';
                 document.getElementById('legend-item-4').style.display = 'flex';
-                document.getElementById('legend-map-1').style.background = '#22c55e';
-                document.getElementById('legend-map-2').style.background = '#84cc16';
+                document.getElementById('legend-map-1').style.background = '#fef9c3';
+                document.getElementById('legend-map-2').style.background = '#fde047';
                 document.getElementById('legend-map-3').style.background = '#fbbf24';
                 document.getElementById('legend-map-4').style.background = '#f97316';
-                document.getElementById('legend-map-5').style.background = '#ef4444';
+                document.getElementById('legend-map-5').style.background = '#ea580c';
                 document.getElementById('legend-map-1-text').textContent = 'Least Deprived (9-10)';
                 document.getElementById('legend-map-2-text').textContent = 'Low (7-8)';
                 document.getElementById('legend-map-3-text').textContent = 'Medium (5-6)';
@@ -2166,7 +2394,7 @@
                 var valueDisplay = '';
                 if (currentMode === 'carbon') valueDisplay = `${p.CarbonPerHectare ? p.CarbonPerHectare.toFixed(1) : '0'} t/ha`;
                 else if (currentMode === 'agb') valueDisplay = `${p.AGBTotal ? p.AGBTotal.toFixed(1) : '0'} t`;
-                else if (currentMode === 'edi') valueDisplay = `EDI: ${p.EDI ? p.EDI.toFixed(1) : '0'}`;
+                else if (currentMode === 'edi') valueDisplay = `EDI: ${p.EDI || '0'}`;
                 else if (currentMode === 'ndvi') valueDisplay = `NDVI: ${p.NDVI ? p.NDVI.toFixed(3) : '0'}`;
                 else if (currentMode === 'canopy') valueDisplay = `${p.Canopy ? p.Canopy.toFixed(1) : '0'}%`;
                 else if (currentMode === 'simd') valueDisplay = `SIMD: ${p.SIMD || 'N/A'}`;
@@ -2467,18 +2695,17 @@
                 rawData = data;
 
                 // Calculate statistics
-                var totalCarbon = 0;
                 var totalEDI = 0;
                 var count = 0;
                 data.features.forEach(f => {
                     if (f.properties.has_data) {
-                        totalCarbon += f.properties.CarbonPerHectare || 0;
                         totalEDI += f.properties.EDI || 0;
                         count++;
                     }
                 });
 
-                document.getElementById('stat-carbon').textContent = totalCarbon.toFixed(1);
+                // Use total carbon directly from database
+                document.getElementById('stat-carbon').textContent = data.totalCarbonFromDB || '0';
                 document.getElementById('stat-avg-edi').textContent = (totalEDI / count).toFixed(1);
 
                 // Add GeoJSON layer
@@ -2494,10 +2721,7 @@
                             var googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`;
 
                             var popupContent = `
-                            <div class="popup-img-container">
-                                <img id="${imgId}" class="popup-img" src="https://images.unsplash.com/photo-1518709414768-a88981a4515d?q=80&w=600&auto=format&fit=crop" alt="${p.name}">
-                            </div>
-                            <div class="popup-info">
+                            <div class="popup-info" style="padding-top: 15px;">
                                 <h2 class="popup-header">${p.name}</h2>
                                 <div class="popup-stats">
                                     <div class="popup-stat">
@@ -2509,7 +2733,7 @@
                                         <div class="popup-stat-value" style="color: var(--neon-green);">${p.CarbonPerHectare ? p.CarbonPerHectare.toFixed(1) : 'N/A'} t/ha</div>
                                     </div>
                                     <div class="popup-stat">
-                                        <div class="popup-stat-label">AGB Total</div>
+                                        <div class="popup-stat-label">Total Carbon</div>
                                         <div class="popup-stat-value" style="color: var(--neon-green);">${p.AGBTotal ? p.AGBTotal.toFixed(1) : 'N/A'} t</div>
                                     </div>
                                     <div class="popup-stat">
@@ -2518,31 +2742,18 @@
                                     </div>
                                     <div class="popup-stat">
                                         <div class="popup-stat-label">EDI Score</div>
-                                        <div class="popup-stat-value" style="color: var(--neon-blue);">${p.EDI ? p.EDI.toFixed(1) : 'N/A'}</div>
+                                        <div class="popup-stat-value" style="color: var(--neon-blue);">${p.EDI || 'N/A'}</div>
                                     </div>
                                     <div class="popup-stat">
                                         <div class="popup-stat-label">NDVI</div>
                                         <div class="popup-stat-value" style="color: var(--neon-blue);">${p.NDVI ? p.NDVI.toFixed(3) : 'N/A'}</div>
                                     </div>
-                                    <div class="popup-stat">
-                                        <div class="popup-stat-label">SIMD Decile</div>
-                                        <div class="popup-stat-value" style="color: var(--neon-purple);">${p.SIMD || 'N/A'}</div>
-                                    </div>
-                                    <div class="popup-stat">
-                                        <div class="popup-stat-label">Strata</div>
-                                        <div class="popup-stat-value">${p.Strata || 'N/A'}</div>
-                                    </div>
-                                </div>
-                                <a href="${googleMapsUrl}" target="_blank" style="display: block; margin-top: 15px; padding: 10px; background: var(--neon-blue); color: #fff; text-align: center; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
-                                    <i class="fa-solid fa-location-arrow"></i> Navigate with Google Maps
-                                </a>
                             </div>
                         `;
 
                             layer.bindPopup(popupContent, {
                                 maxWidth: 320
                             }).openPopup();
-                            fetchWikiImage(p.name, imgId);
                         });
                     }
                 }).addTo(map);
