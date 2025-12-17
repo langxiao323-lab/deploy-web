@@ -34,7 +34,7 @@ Edinburgh's graveyards bring many benefits to tourism, biodiversity, and wellbei
 Our study focuses on 35 graveyards across Edinburgh, selected for their size, tree coverage, and distribution across different socioeconomic areas. These green spaces represent a significant yet understudied component of the city's urban forest.
 
 ![Study Area Map](static/report_images/image2.png)
-*Figure 1: Map showing the distribution of the 35 studied graveyards across Edinburgh, overlaid with SIMD (Scottish Index of Multiple Deprivation) data. The size of each circle represents the relative carbon storage capacity of each site.*
+*Map showing the 35 graveyards studied*
 
 ---
 
