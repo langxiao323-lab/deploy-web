@@ -333,6 +333,43 @@
             border-color: var(--neon-blue);
             box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
         }
+        /* Dual Range Slider Styles */
+        
+        .dual-range-input {
+            position: absolute;
+            width: 100%;
+            height: 24px;
+            background: none;
+            pointer-events: none;
+            -webkit-appearance: none;
+            appearance: none;
+            top: 0;
+            left: 0;
+        }
+        
+        .dual-range-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #10b981;
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dual-range-input::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #10b981;
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
         
         .list-container {
             flex: 1;
@@ -1460,7 +1497,7 @@
                 <p style="margin-bottom: 8px;"><strong style="color: #10b981;">Quick Guide:</strong></p>
                 <p><i class="fas fa-mouse-pointer" style="width: 16px;"></i> Select graveyard on map or list below</p>
                 <p><i class="fas fa-palette" style="width: 16px;"></i> Click data buttons to change display</p>
-                <p><i class="fas fa-filter" style="width: 16px;"></i> Filter results by total carbon</p>
+                <p><i class="fas fa-filter" style="width: 16px;"></i> Filter results by carbon density</p>
                 <p><i class="fas fa-search" style="width: 16px;"></i> Search by name or postcode</p>
                 <p><i class="fas fa-info-circle" style="width: 16px;"></i> Hover over buttons below to learn more</p>
             </div>
@@ -1495,14 +1532,24 @@
         <div style="padding: 15px 20px; border-bottom: 1px solid var(--border);">
             <div style="font-size: 10px; color: #64748b; text-transform: uppercase; margin-bottom: 10px; font-weight: 600;">Advanced Filters</div>
             <div style="margin-bottom: 12px;">
-                <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 6px;">Carbon Range (t)</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="number" id="carbon-min" value="0" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px; border-radius: 4px; font-size: 11px;">
-                    <span style="color: #64748b;">-</span>
-                    <input type="number" id="carbon-max" value="200" style="flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; padding: 6px; border-radius: 4px; font-size: 11px;">
+                <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 6px;">Carbon Density (t/ha)</label>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #10b981; margin-bottom: 4px;">
+                    <span id="carbon-min-label">38</span>
+                    <span id="carbon-max-label">340</span>
+                </div>
+                <div class="dual-range-container" style="position: relative; height: 24px;">
+                    <div class="slider-track" style="position: absolute; top: 50%; transform: translateY(-50%); width: 100%; height: 4px; background: #334155; border-radius: 2px;"></div>
+                    <div id="slider-range" style="position: absolute; top: 50%; transform: translateY(-50%); height: 4px; background: linear-gradient(90deg, #10b981, #0ea5e9); border-radius: 2px; left: 0%; right: 0%;"></div>
+                    <input type="range" id="carbon-min" min="38" max="340" value="38" class="dual-range-input" oninput="updateDualSlider()">
+                    <input type="range" id="carbon-max" min="38" max="340" value="340" class="dual-range-input" oninput="updateDualSlider()">
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 9px; color: #64748b; margin-top: 2px;">
+                    <span>Min: 38</span>
+                    <span>Max: 340</span>
                 </div>
             </div>
             <button onclick="applyFilters()" style="width: 100%; padding: 8px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); border: none; color: #fff; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600;">Apply Filters</button>
+            <button onclick="resetFilters()" style="width: 100%; padding: 8px; margin-top: 6px; background: transparent; border: 1px solid var(--border); color: #94a3b8; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600;">Reset</button>
         </div>
 
         <!-- Stats Panel -->
@@ -1644,7 +1691,7 @@
                                 target="_blank" style="color: #1e3a5f; text-decoration: underline;">"sequester carbon where possible"</a>.</p>
                         <p style="font-size: 18px; color: #2d3436; margin: 0; line-height: 1.8;">A <a href="https://link.springer.com/article/10.1186/s13021-018-0098-0" target="_blank" style="color: #1e3a5f; text-decoration: underline;">recent study</a> found London's urban parks and graveyards can store as much carbon as
                             temperate and tropical forests. Can Edinburgh's cemeteries do the same?</p>
-                        <p style="font-size: 18px; color: #2d3436; margin: 0; line-height: 1.8;">To find out, we measured above ground carbon in 35 graveyards. We used this data to measure environmental and social deprivation, to find priority greenspaces for restoration, protection and enhancement.</p>
+                        <p style="font-size: 18px; color: #2d3436; margin: 0; line-height: 1.8;">To find out, we measured above-ground carbon in 35 graveyards. We used this data to measure environmental and social deprivation, to find priority greenspaces for restoration, protection and enhancement.</p>
                     </div>
                     <div>
                         <img src="/dev/group1project/static/report_images/image1.jpg" alt="Edinburgh Cemetery" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); cursor: pointer;" onclick="openImageModal(this.src)">
@@ -1683,7 +1730,7 @@
                 <h2 class="report-section-title">Study <span>Area</span></h2>
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
                     <img src="/dev/group1project/static/report_images/image2.png" alt="Study Area Map" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); cursor: pointer;" onclick="openImageModal(this.src)">
-                    <p style="font-size: 14px; color: #636e72; text-align: center; max-width: 800px;"><em>A map showing the 35 graveyards investigated in this study.</em></p>
+                    <p style="font-size: 14px; color: #636e72; text-align: center; max-width: 800px;"><em>Map showing the 35 graveyards studied</em></p>
                 </div>
             </div>
         </section>
@@ -1790,7 +1837,7 @@
                             </div>
                             <div style="text-align: center;">
                                 <img src="/dev/group1project/static/report_images/city-wide tree cover map.jpg" alt="City-wide Carbon Map" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); cursor: pointer;" onclick="openImageModal(this.src)">
-                                <p style="font-size: 14px; color: #636e72; text-align: center; margin-top: 15px; font-style: italic;">Our carbon map of Edinburgh, based on ground data and scaled city-wide using remote sensing</p>
+                                <p style="font-size: 14px; color: #636e72; text-align: center; margin-top: 15px; font-style: italic;">Our carbon map of Edinburgh, based on ground data and scaled city-wide using remote sensing. Darker colours indicate more carbon</p>
                             </div>
                         </div>
                     </div>
@@ -1801,7 +1848,8 @@
                     <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
                         <div class="report-card-content" style="padding: 30px;">
                             <h3 style="font-size: 24px; color: #1e3a5f; margin-bottom: 15px;">Measuring Environmental Deprivation</h3>
-                            <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">Our environmental deprivation index (EDI) measured greenspace quality at each graveyard. It used LiDAR's tree height and canopy cover values, and NDVI (vegetation health) data from the Sentinel-2 satellite. Like this:</p>
+                            <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">Our environmental deprivation index (EDI) measured greenspace quality at each graveyard. It used our carbon estimates (normalised to a 0-1 range with 1 indicating high carbon per hectare), LiDAR's tree height and canopy cover
+                                values, and NDVI (vegetation health) data from the Sentinel-2 satellite. Like this:</p>
                             <div style="text-align: center; margin-bottom: 25px;">
                                 <img src="/dev/group1project/static/report_images/image11.png" alt="EDI Formula" style="max-width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
                             </div>
@@ -1922,7 +1970,7 @@
                         <div style="padding: 15px 0;">
                             <button onclick="toggleResultsDropdown(3)" style="display: flex; align-items: center; gap: 15px; width: 100%; background: none; border: none; cursor: pointer; text-align: left;">
                                 <span id="results-num-3" style="min-width: 32px; height: 32px; border: 2px solid #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: #666; transition: all 0.3s;">3</span>
-                                <span id="results-title-3" style="font-size: 18px; font-weight: 700; color: #2d3436;">Hotspots Not Spotted</span>
+                                <span id="results-title-3" style="font-size: 18px; font-weight: 700; color: #2d3436;">Eco Vs Social Deprivation</span>
                             </button>
                             <div id="results-dropdown-3" style="display: none; padding: 15px 0 5px 47px; color: #555; font-size: 15px; line-height: 1.8;">
                                 EDI doesn't map well with social deprivation, as measured by the Scottish Index of Multiple Deprivation (SIMD). None of our 15 most environmentally-deprived cemeteries are in social deprivation hotspots.
@@ -2016,8 +2064,8 @@
                                 <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Invest where there will be the greatest impact</strong><br>Using SIMD, prioritise greenspace funding in social deprivation hotspots to maximise climate, biodiversity and social-equity gains.</li>
                                 <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Enhance EDI</strong><br>Further improvements should be made to our EDI measure to include local access to greenspace and health-supporting ecosystem services. This will better reflect greenspaces like graveyards'
                                     many roles.</li>
-                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8;"><strong>Combine multiple datasets for better decisions</strong><br>Tackling social and environmental deprivation takes more than just one measure. Combining social datasets like SIMD with environmental ones will lead to
-                                    a long-term way in guiding greenspace funding decisions.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8;"><strong>Combine multiple datasets for better decisions</strong><br>Tackling social and environmental deprivation takes more than just one measure. Combining social datasets like SIMD with environmental ones is an effective,
+                                    long-term way to guide where to send greenspace funds.</li>
                             </ul>
                         </div>
                         <div id="conclusion-content-3" style="display: none;">
@@ -2075,7 +2123,7 @@
                         <h4 style="color: #2d3436; margin-bottom: 15px; font-size: 18px;"><i class="fas fa-map" style="color: var(--neon-green); margin-right: 10px;"></i>Social Deprivation</h4>
                         <ul style="color: #636e72; line-height: 1.8;">
                             <li><strong>SIMD 2020:</strong> <a href="https://www.gov.scot/collections/scottish-index-of-multiple-deprivation-2020/" target="_blank" style="color: #0891b2;">Scottish Government - Scottish Index of Multiple Deprivation</a></li>
-                            <li><strong>Graveyard Boundaries:</strong> <a href="https://www.edinburgh.gov.uk/" target="_blank" style="color: #0891b2;">City of Edinburgh Council</a></li>
+                            <li><strong>Graveyard Boundaries:</strong> <a href="https://data.edinburghcouncilmaps.info/datasets/0645deebb7604f5b82a5d1bbbfc444c8_15/explore" target="_blank" style="color: #0891b2;">City of Edinburgh Council</a></li>
                             <li><strong>Buildings:</strong> <a href="https://hub.arcgis.com/maps/e0df7f3ac3a64e8d96f312dfc3f757b6" target="_blank" style="color: #0891b2;">OS OpenMap Local Buildings</a></li>
                         </ul>
                     </div>
@@ -2129,7 +2177,8 @@
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">UNESCO, 2011. Old and New Towns of Edinburgh.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Wilkes, P., Disney, M., Vicari, M., Calders, K. and Burt, A., 2018. Estimating urban above ground biomass with multi-scale LiDAR. <em>Carbon Balance and Management</em>, 13: 10.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Zhang, J., de Gier, A., Xing, Y. and Sohn, G., 2011. Full waveform-based analysis for forest type information derivation from large footprint spaceborne lidar data. <em>Photogrammetric Engineering and Remote Sensing</em>, 77(3):
-                                281-290.</li>
+                                281-290.
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -2659,32 +2708,115 @@
                 });
         }
 
+        // Update dual slider
+        function updateDualSlider() {
+            var minInput = document.getElementById('carbon-min');
+            var maxInput = document.getElementById('carbon-max');
+            var minVal = parseInt(minInput.value);
+            var maxVal = parseInt(maxInput.value);
+
+            // Prevent crossing
+            if (minVal > maxVal) {
+                minInput.value = maxVal;
+                minVal = maxVal;
+            }
+            if (maxVal < minVal) {
+                maxInput.value = minVal;
+                maxVal = minVal;
+            }
+
+            // Update labels
+            document.getElementById('carbon-min-label').textContent = minVal;
+            document.getElementById('carbon-max-label').textContent = maxVal;
+
+            // Update range highlight
+            var min = 38,
+                max = 340;
+            var leftPercent = ((minVal - min) / (max - min)) * 100;
+            var rightPercent = 100 - ((maxVal - min) / (max - min)) * 100;
+            var sliderRange = document.getElementById('slider-range');
+            if (sliderRange) {
+                sliderRange.style.left = leftPercent + '%';
+                sliderRange.style.right = rightPercent + '%';
+            }
+        }
+
+        // Alias for compatibility
+        function updateSliderLabels() {
+            updateDualSlider();
+        }
+
+        // Store filtered names for list filtering
+        var filteredNames = null;
+
         // Advanced Filters
         function applyFilters() {
             var carbonMin = parseFloat(document.getElementById('carbon-min').value) || 0;
             var carbonMax = parseFloat(document.getElementById('carbon-max').value) || 9999;
 
             var filteredCount = 0;
+            filteredNames = [];
 
-            geojsonLayer.eachLayer(layer => {
+            geojsonLayer.eachLayer(function(layer) {
                 var p = layer.feature.properties;
                 var carbon = p.CarbonPerHectare || 0;
+                var name = p.name;
 
                 if (carbon >= carbonMin && carbon <= carbonMax) {
                     layer.setStyle({
                         opacity: 1,
                         fillOpacity: 0.5
                     });
+                    if (layer.getElement()) layer.getElement().style.display = '';
+                    if (window.numberMarkers && window.numberMarkers[name]) {
+                        window.numberMarkers[name].getElement().style.display = '';
+                    }
                     filteredCount++;
+                    filteredNames.push(name);
                 } else {
                     layer.setStyle({
-                        opacity: 0.2,
-                        fillOpacity: 0.1
+                        opacity: 0,
+                        fillOpacity: 0
                     });
+                    if (layer.getElement()) layer.getElement().style.display = 'none';
+                    if (window.numberMarkers && window.numberMarkers[name]) {
+                        window.numberMarkers[name].getElement().style.display = 'none';
+                    }
                 }
             });
 
-            alert(`Filters applied! Showing ${filteredCount} sites matching criteria.`);
+            // Filter list items
+            var container = document.getElementById('list');
+            var items = container.querySelectorAll('.list-item');
+            items.forEach(function(item) {
+                var itemName = item.querySelector('.item-header span').textContent;
+                if (filteredNames.includes(itemName)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('carbon-min').value = 38;
+            document.getElementById('carbon-max').value = 340;
+            updateSliderLabels();
+            filteredNames = null;
+
+            geojsonLayer.eachLayer(function(layer) {
+                layer.setStyle({
+                    opacity: 1,
+                    fillOpacity: 0.5
+                });
+                if (layer.getElement()) layer.getElement().style.display = '';
+                var name = layer.feature.properties.name;
+                if (window.numberMarkers && window.numberMarkers[name]) {
+                    window.numberMarkers[name].getElement().style.display = '';
+                }
+            });
+
             renderList();
         }
 
@@ -2694,14 +2826,12 @@
             sidebar.classList.toggle('collapsed');
         }
 
-
         // Export data
         function exportData() {
             if (!rawData) {
                 alert('No data available to export');
                 return;
             }
-
             const dataStr = JSON.stringify(rawData, null, 2);
             const dataBlob = new Blob([dataStr], {
                 type: 'application/json'
@@ -2714,7 +2844,6 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-
             alert('Data exported successfully!');
         }
 
@@ -2902,6 +3031,7 @@
 
                 // Add number labels to each graveyard
                 var labelIndex = 1;
+                window.numberMarkers = {};
                 geojsonLayer.eachLayer(function(layer) {
                     if (layer.feature.properties.has_data) {
                         var center = layer.getBounds().getCenter();
@@ -2923,6 +3053,7 @@
                             layer.fire('click');
                         });
                         marker.addTo(map);
+                        window.numberMarkers[layer.feature.properties.name] = marker;
                         labelIndex++;
                     }
                 });
