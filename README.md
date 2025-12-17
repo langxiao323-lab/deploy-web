@@ -21,6 +21,21 @@ This is an **interactive web map application** that displays:
 
 **Why study graveyards?** Because graveyards typically have many old trees, making them important "green lungs" and carbon sinks in urban areas!
 
+## 🌱 Why Graveyards?
+
+Edinburgh's graveyards bring many benefits to tourism, biodiversity, and wellbeing. But what about their role in carbon storage?
+
+- Since declaring a climate emergency in 2019, Edinburgh Council now admits it may not reach its target of net zero by 2030. The council's climate plan urges the city to "sequester carbon where possible."
+- A recent study found London's urban parks and graveyards can store as much carbon as temperate and tropical forests. Can Edinburgh's cemeteries do the same?
+- To find out, we measured above-ground carbon in 35 graveyards. We used this data to measure environmental and social deprivation, identifying priority greenspaces for restoration, protection, and enhancement.
+
+## 🗺️ Study Area
+
+Our study focuses on 35 graveyards across Edinburgh, selected for their size, tree coverage, and distribution across different socioeconomic areas. These green spaces represent a significant yet understudied component of the city's urban forest.
+
+![Study Area Map](static/report_images/image2.png)
+*Figure 1: Map showing the distribution of the 35 studied graveyards across Edinburgh, overlaid with SIMD (Scottish Index of Multiple Deprivation) data. The size of each circle represents the relative carbon storage capacity of each site.*
+
 ---
 
 ## 🛠️ Tech Stack Explained
@@ -43,7 +58,7 @@ deploy-web-2/
 │
 ├── 📄 app.py                    # ⭐ Main program! Flask backend
 │
-├── 📁 templates/
+├── 📁 web/                      # Web template folder (renamed from templates)
 │   └── 📄 map.html              # ⭐ Frontend page! Map + Report
 │
 ├── 📁 data/
@@ -216,7 +231,7 @@ deploy-web-2/
 │
 ├── 📄 app.py                    # ⭐ 主程序！Flask后端，连接数据库，提供API
 │
-├── 📁 templates/                # 网页模板文件夹
+├── 📁 web/                      # 网页模板文件夹（已从templates重命名）
 │   └── 📄 map.html              # ⭐ 前端页面！地图+报告都在这里
 │
 ├── 📁 data/                     # 数据文件夹
