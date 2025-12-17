@@ -12,7 +12,7 @@ ORACLE_PASSWORD = getpass.getpass("Password: ")
 ORACLE_DSN = "172.16.108.21:1842/GLRNLIVE_PRMY.is.ed.ac.uk"
 print("Credentials set successfully!\n")
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='web')
 
 # --- Name Mapping (GeoJSON name -> Database name) ---
 # Based on actual database names from 02_insert_data.sql
