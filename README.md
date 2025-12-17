@@ -164,13 +164,42 @@ http://localhost:55429
 
 ## 📊 Visualization Modes
 
-| Mode | Data Source | Color Scheme |
-|------|-------------|--------------|
-| **Carbon** | carbon_per_hectare_calibrate | Green gradient |
-| **EDI** | edi_norm (0-1) | Blue-Cyan-Green-Yellow |
-| **SIMD** | simd_decile (1-10) | Yellow-Orange gradient |
-| **NDVI** | ndvi_mean | Green gradient |
-| **Canopy** | canopy_percentage | Green gradient |
+| Mode | Data Source | Legend Categories |
+|------|-------------|-------------------|
+| **Carbon/Ha** | carbon_per_hectare_calibrate | >120, 80-120, 40-80, <40 t/ha |
+| **Total Carbon** | AGBTotal | >100, 50-100, 20-50, <20 t |
+| **Canopy %** | canopy_percentage | Very Dense (>70%), Dense (50-70%), Medium-Dense (30-50%), Sparse (<30%) |
+| **EDI** | edi_norm (0-1) | Least Deprived (>0.6), Low (0.4-0.6), Med (0.25-0.4), Most Deprived (<0.25) |
+| **NDVI** | ndvi_mean | High (>0.4), Med-High (0.3-0.4), Medium (0.2-0.3), Low (<0.2) |
+| **SIMD** | simd_decile (1-10) | Least Deprived (9-10) to Most Deprived (1-2) |
+
+---
+
+## ✨ Key Features
+
+### 🗺️ Interactive Web Map
+- **Click any graveyard** to view detailed statistics (Area, Carbon, EDI, NDVI, etc.)
+- **Get Directions** button in popup - opens Google Maps for navigation
+- **Postcode search** - find graveyards within 5km of any UK postcode
+- **SIMD background layer** - toggle social deprivation overlay
+- **Multiple visualization modes** - switch between Carbon, EDI, NDVI, Canopy, and SIMD views
+- **Dual-range carbon filter** - filter graveyards by carbon density (38-340 t/ha) with interactive slider
+- **Numbered markers** - each graveyard displays a number label that syncs with the sidebar list
+
+### 📄 Interactive Report Page
+- **Flip cards** - click to compare satellite maps with field photos
+- **Image zoom** - click any image to view full-size in modal
+- **Smooth scroll navigation** - animated scroll indicator
+- **Tabbed content** - Methods section with interactive tabs
+- **Results carousel** - navigate through research findings with arrows
+- **Feedback survey** - integrated Microsoft Forms for user feedback
+
+### 🌍 Research Highlights
+- **35 graveyards** analyzed across Edinburgh
+- **City-wide carbon map** created using ground data and remote sensing (darker colours = more carbon)
+- **Environmental Deprivation Index (EDI)** - novel metric combining carbon estimates (normalised 0-1), tree height, canopy cover, and NDVI
+- **Priority zones** identified for greenspace enhancement
+- **Key finding**: EDI doesn't map well with social deprivation (SIMD) - different datasets needed for better decisions
 
 ---
 
@@ -529,35 +558,44 @@ http://localhost:55429
 
 ---
 
+## ✨ 主要功能特色
+
+### 🗺️ 交互式地图功能
+- **点击任意墓地** 查看详细统计数据（面积、碳储量、EDI、NDVI等）
+- **获取路线按钮** 点击弹出窗口中的按钮，跳转Google Maps导航
+- **邮编搜索** 输入英国邮编，查找5公里范围内的墓地
+- **SIMD背景图层** 可切换显示社会剥夺热力图
+- **多种可视化模式** 在碳储量、EDI、NDVI、树冠覆盖、SIMD之间切换
+- **双滑块碳密度过滤器** 使用范围滑块（38-340 t/ha）筛选墓地
+- **编号标记** 每个墓地显示编号标签，与侧边栏列表同步
+
+### 📄 交互式报告页面
+- **翻转卡片** 点击图片在卫星地图和实地照片之间切换
+- **图片放大** 点击任意图片可全屏查看
+- **滚动导航** 页面顶部有动画滚动指示器
+- **标签页切换** 方法部分使用交互式标签页
+- **结果轮播** 使用箭头浏览研究结果图表
+- **反馈调查** 集成Microsoft Forms用户反馈表单
+
+### 🌍 研究亮点
+- **35个墓地** 覆盖爱丁堡全市的研究范围
+- **城市碳地图** 基于实地数据和遥感技术绘制（深色=高碳储量）
+- **环境剥夺指数(EDI)** 结合碳储量估算（标准化0-1）、树高、树冠覆盖和NDVI的创新指标
+- **优先区域识别** 为绿地提升项目提供决策依据
+- **关键发现**：EDI与社会剥夺（SIMD）关联度低——需要结合多种数据集做出更好决策
+
+---
+
 ## 📊 数据可视化模式详解
 
-### 模式1：碳储量 (Carbon)
-- **数据来源**：`carbon_per_hectare_calibrate`
-- **颜色方案**：绿色渐变（深绿=高碳储量）
-- **图例**：
-  - 🟢 深绿：≥200 吨/公顷
-  - 🟢 中绿：150-200 吨/公顷
-  - 🟢 浅绿：100-150 吨/公顷
-  - 🟢 最浅：<100 吨/公顷
-
-### 模式2：环境剥夺指数 (EDI)
-- **数据来源**：`edi_norm`（0-1标准化）
-- **颜色方案**：蓝-青-绿-黄
-- **图例**：
-  - 🔵 深蓝：≥0.6（环境最好）
-  - 🔵 青色：0.4-0.6
-  - 🟢 绿色：0.25-0.4
-  - 🟡 黄色：<0.25（环境最差）
-
-### 模式3：社会剥夺指数 (SIMD)
-- **数据来源**：`simd_decile`（1-10）
-- **颜色方案**：黄-橙渐变
-- **图例**：
-  - 🟡 浅黄：9-10（最不剥夺/富裕）
-  - 🟡 黄色：7-8
-  - 🟠 淡橙：5-6
-  - 🟠 橙色：3-4
-  - 🟠 深橙：1-2（最剥夺/贫困）
+| 模式 | 数据来源 | 图例分类 |
+|------|----------|----------|
+| **碳储量/公顷** | carbon_per_hectare_calibrate | >120, 80-120, 40-80, <40 吨/公顷 |
+| **总碳储量** | AGBTotal | >100, 50-100, 20-50, <20 吨 |
+| **树冠覆盖率** | canopy_percentage | 非常茂密(>70%), 茂密(50-70%), 中等(30-50%), 稀疏(<30%) |
+| **EDI指数** | edi_norm (0-1) | 环境最好(>0.6), 较好(0.4-0.6), 中等(0.25-0.4), 最差(<0.25) |
+| **NDVI指数** | ndvi_mean | 高(>0.4), 中高(0.3-0.4), 中等(0.2-0.3), 低(<0.2) |
+| **SIMD指数** | simd_decile (1-10) | 最不剥夺(9-10) 到 最剥夺(1-2) |
 
 ---
 
