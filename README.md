@@ -54,7 +54,7 @@ Our study focuses on 35 graveyards across Edinburgh, selected for their size, tr
 ## 📁 Project File Structure
 
 ```
-deploy-web-2/
+deploy-web/
 │
 ├── 📄 app.py                    # ⭐ Main program! Flask backend
 │
@@ -139,7 +139,7 @@ pip install flask oracledb
 
 ### Step 3: Start the Server
 ```bash
-cd d:\网页测试\deploy-web-2
+cd d:\网页测试\deploy-web
 python app.py
 ```
 
@@ -256,7 +256,7 @@ This project is for academic research purposes only.
 ## 📁 项目文件结构（每个文件是干嘛的）
 
 ```
-deploy-web-2/
+deploy-web/
 │
 ├── 📄 app.py                    # ⭐ 主程序！Flask后端，连接数据库，提供API
 │
@@ -507,7 +507,7 @@ pip install flask oracledb -i https://pypi.tuna.tsinghua.edu.cn/simple
 ### 第四步：启动项目
 
 ```bash
-cd d:\网页测试\deploy-web-2
+cd d:\网页测试\deploy-web
 python app.py
 ```
 
