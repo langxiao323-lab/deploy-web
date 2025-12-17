@@ -167,7 +167,7 @@ http://localhost:55429
 | Mode | Data Source | Legend Categories |
 |------|-------------|-------------------|
 | **Carbon/Ha** | carbon_per_hectare_calibrate | >120, 80-120, 40-80, <40 t/ha |
-| **Total Carbon** | AGBTotal | >100, 50-100, 20-50, <20 t |
+| **Total Carbon** | carbon_per_hectare_calibrate × area | >100, 50-100, 20-50, <20 t |
 | **Canopy %** | canopy_percentage | Very Dense (>70%), Dense (50-70%), Medium-Dense (30-50%), Sparse (<30%) |
 | **EDI** | edi_norm (0-1) | Least Deprived (>0.6), Low (0.4-0.6), Med (0.25-0.4), Most Deprived (<0.25) |
 | **NDVI** | ndvi_mean | High (>0.4), Med-High (0.3-0.4), Medium (0.2-0.3), Low (<0.2) |
@@ -591,7 +591,7 @@ http://localhost:55429
 | 模式 | 数据来源 | 图例分类 |
 |------|----------|----------|
 | **碳储量/公顷** | carbon_per_hectare_calibrate | >120, 80-120, 40-80, <40 吨/公顷 |
-| **总碳储量** | AGBTotal | >100, 50-100, 20-50, <20 吨 |
+| **总碳储量** | carbon_per_hectare_calibrate × area | >100, 50-100, 20-50, <20 吨 |
 | **树冠覆盖率** | canopy_percentage | 非常茂密(>70%), 茂密(50-70%), 中等(30-50%), 稀疏(<30%) |
 | **EDI指数** | edi_norm (0-1) | 环境最好(>0.6), 较好(0.4-0.6), 中等(0.25-0.4), 最差(<0.25) |
 | **NDVI指数** | ndvi_mean | 高(>0.4), 中高(0.3-0.4), 中等(0.2-0.3), 低(<0.2) |
