@@ -333,8 +333,8 @@
             border-color: var(--neon-blue);
             box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
         }
-        /* Dual Range Slider Styles */
         
+        /* Dual Range Slider Styles */
         .dual-range-input {
             position: absolute;
             width: 100%;
@@ -346,7 +346,6 @@
             top: 0;
             left: 0;
         }
-        
         .dual-range-input::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -357,9 +356,8 @@
             cursor: pointer;
             pointer-events: auto;
             border: 2px solid #fff;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
-        
         .dual-range-input::-moz-range-thumb {
             width: 16px;
             height: 16px;
@@ -368,7 +366,7 @@
             cursor: pointer;
             pointer-events: auto;
             border: 2px solid #fff;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
         
         .list-container {
@@ -769,7 +767,7 @@
             font-family: 'EB Garamond', serif;
             font-size: 18px;
             color: #fff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
         
         .report-nav-links {
@@ -782,7 +780,7 @@
             text-decoration: none;
             font-size: 14px;
             font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
             padding: 8px 14px;
             border-radius: 20px;
@@ -791,7 +789,7 @@
         
         .report-nav-links a:hover {
             color: #1e3a5f;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             text-shadow: none;
             transform: translateY(-2px);
         }
@@ -800,7 +798,7 @@
             color: #1e3a5f;
             background: #fff;
             text-shadow: none;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
         }
         
         .report-nav-buttons {
@@ -833,7 +831,8 @@
         
         .report-hero {
             min-height: 100vh;
-            background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('/dev/group1project/static/report_images/background.jpg');
+            background: linear-gradient(rgba(255,255,255,0.5), rgba(255,255,255,0.5)), 
+                        url('/dev/group1project/static/report_images/background.jpg');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -937,40 +936,19 @@
         }
         
         @keyframes bounce {
-            0%,
-            20%,
-            50%,
-            80%,
-            100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            40% {
-                transform: translateX(-50%) translateY(-10px);
-            }
-            60% {
-                transform: translateX(-50%) translateY(-5px);
-            }
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
         }
         
         @keyframes scroll-wheel {
-            0% {
-                opacity: 1;
-                top: 8px;
-            }
-            100% {
-                opacity: 0;
-                top: 20px;
-            }
+            0% { opacity: 1; top: 8px; }
+            100% { opacity: 0; top: 20px; }
         }
         
         @keyframes arrow-fade {
-            0%,
-            100% {
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 1;
-            }
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
         }
         
         .report-section {
@@ -1376,7 +1354,6 @@
             document.getElementById('feedbackModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
-
         function closeFeedbackModal() {
             document.getElementById('feedbackModal').style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -1384,7 +1361,7 @@
         document.getElementById('feedbackModal').addEventListener('click', function(e) {
             if (e.target === this) closeFeedbackModal();
         });
-
+        
         function searchPageContent(query) {
             if (!query || query.length < 2) {
                 clearHighlights();
@@ -1410,37 +1387,31 @@
                 if (key.includes(lowerQuery)) {
                     var target = document.querySelector(sections[key]);
                     if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         target.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.5)';
-                        setTimeout(function() {
-                            target.style.boxShadow = '';
-                        }, 2000);
+                        setTimeout(function() { target.style.boxShadow = ''; }, 2000);
                         return;
                     }
                 }
             }
         }
-
         function clearHighlights() {
             document.querySelectorAll('.report-section').forEach(function(el) {
                 el.style.boxShadow = '';
             });
         }
-
+        
         // Scroll Spy - ڨ��خSM���*��
         function updateActiveNav() {
             var sections = document.querySelectorAll('.report-section, .report-hero');
             var navLinks = document.querySelectorAll('.report-nav-links a[href^="#"]');
             var scrollPos = window.scrollY + 150;
-
+            
             sections.forEach(function(section) {
                 var top = section.offsetTop;
                 var height = section.offsetHeight;
                 var id = section.getAttribute('id');
-
+                
                 if (scrollPos >= top && scrollPos < top + height) {
                     navLinks.forEach(function(link) {
                         link.classList.remove('active');
@@ -1451,7 +1422,7 @@
                     });
                 }
             });
-
+            
             // Hero:�y�
             if (window.scrollY < 300) {
                 navLinks.forEach(function(link) {
@@ -1461,12 +1432,12 @@
                 if (introLink) introLink.classList.add('active');
             }
         }
-
+        
         // �,ڨ��
         window.addEventListener('scroll', updateActiveNav);
         // ub�}��
         document.addEventListener('DOMContentLoaded', updateActiveNav);
-
+        
         // Toggle Help Panel
         function toggleHelp() {
             var panel = document.getElementById('helpPanel');
@@ -1664,10 +1635,8 @@
                 <p style="font-size: 28px; color: #2d3436; font-weight: 700; margin-bottom: 15px;">Edinburgh promised to hit net zero by 2030. It's failing.</p>
                 <p style="font-size: 28px; color: #2d3436; font-weight: 700; margin-bottom: 30px;">Are graveyards the answer?</p>
                 <div style="display: flex; justify-content: center; gap: 30px; margin-top: 30px; margin-bottom: 40px;">
-                    <a href="#" onclick="openFeedbackModal(); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s; background: #fff;"
-                        onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='#fff'; this.style.color='#2d3436'">HAVE YOUR SAY</a>
-                    <a href="#" onclick="switchPage('map'); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s; background: #fff;"
-                        onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='#fff'; this.style.color='#2d3436'">INTERACTIVE WEBMAP</a>
+                    <a href="#" onclick="openFeedbackModal(); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s; background: #fff;" onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='#fff'; this.style.color='#2d3436'">HAVE YOUR SAY</a>
+                    <a href="#" onclick="switchPage('map'); return false;" style="color: #2d3436; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 15px 30px; border: 2px solid #2d3436; border-radius: 4px; transition: all 0.3s; background: #fff;" onmouseover="this.style.background='#2d3436'; this.style.color='#fff'" onmouseout="this.style.background='#fff'; this.style.color='#2d3436'">INTERACTIVE WEBMAP</a>
                 </div>
             </div>
             <!-- Scroll Down Indicator -->
@@ -1686,11 +1655,8 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch;">
                     <div style="text-align: left; display: flex; flex-direction: column; justify-content: center; gap: 20px; padding: 15px 0;">
                         <p style="font-size: 22px; font-weight: 700; color: #2d3436; margin: 0; line-height: 1.5;">Edinburgh's graveyards bring many benefits, from biodiversity and quality of life to tourism. What about carbon storage?</p>
-                        <p style="font-size: 18px; color: #2d3436; margin: 0; line-height: 1.8;">Since declaring a <a href="https://www.edinburgh.gov.uk/climate-2/climate-target-net-zero-2030/4" target="_blank" style="color: #1e3a5f; text-decoration: underline;">climate emergency</a> in 2019, Edinburgh Council <a href="https://www.scotsman.com/news/politics/edinburgh-glasgow-council-2030-net-zero-target-5258178"
-                                target="_blank" style="color: #1e3a5f; text-decoration: underline;">now admits</a> it may not reach its target of net zero by 2030. The council's climate plan urges the city to <a href="https://www.edinburgh.gov.uk/downloads/file/35902/city-plan-2030-written-statement"
-                                target="_blank" style="color: #1e3a5f; text-decoration: underline;">"sequester carbon where possible"</a>.</p>
-                        <p style="font-size: 18px; color: #2d3436; margin: 0; line-height: 1.8;">A <a href="https://link.springer.com/article/10.1186/s13021-018-0098-0" target="_blank" style="color: #1e3a5f; text-decoration: underline;">recent study</a> found London's urban parks and graveyards can store as much carbon as
-                            temperate and tropical forests. Can Edinburgh's cemeteries do the same?</p>
+                        <p style="font-size: 18px; color: #2d3436; margin: 0; line-height: 1.8;">Since declaring a <a href="https://www.edinburgh.gov.uk/climate-2/climate-target-net-zero-2030/4" target="_blank" style="color: #1e3a5f; text-decoration: underline;">climate emergency</a> in 2019, Edinburgh Council <a href="https://www.scotsman.com/news/politics/edinburgh-glasgow-council-2030-net-zero-target-5258178" target="_blank" style="color: #1e3a5f; text-decoration: underline;">now admits</a> it may not reach its target of net zero by 2030. The council's climate plan urges the city to <a href="https://www.edinburgh.gov.uk/downloads/file/35902/city-plan-2030-written-statement" target="_blank" style="color: #1e3a5f; text-decoration: underline;">"sequester carbon where possible"</a>.</p>
+                        <p style="font-size: 18px; color: #2d3436; margin: 0; line-height: 1.8;">A <a href="https://link.springer.com/article/10.1186/s13021-018-0098-0" target="_blank" style="color: #1e3a5f; text-decoration: underline;">recent study</a> found London's urban parks and graveyards can store as much carbon as temperate and tropical forests. Can Edinburgh's cemeteries do the same?</p>
                         <p style="font-size: 18px; color: #2d3436; margin: 0; line-height: 1.8;">To find out, we measured above-ground carbon in 35 graveyards. We used this data to measure environmental and social deprivation, to find priority greenspaces for restoration, protection and enhancement.</p>
                     </div>
                     <div>
@@ -1739,7 +1705,7 @@
         <section id="report-methods" class="report-section" style="background: #f1f3f5;">
             <div class="report-container">
                 <h2 class="report-section-title">Our <span>Methods</span></h2>
-
+                
                 <!-- Method Tabs -->
                 <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap;">
                     <button onclick="showMethodTab(1)" id="method-tab-1" style="padding: 15px 30px; border: none; background: linear-gradient(135deg, #1e3a5f, #0891b2); color: #fff; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(30, 58, 95, 0.3); display: flex; align-items: center; gap: 8px;">
@@ -1752,7 +1718,7 @@
                         <i class="fas fa-calculator"></i> Measuring Environmental Deprivation
                     </button>
                 </div>
-
+        
                 <!-- Tab 1: Collecting Ground Data -->
                 <div id="method-content-1" style="display: block;">
                     <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
@@ -1848,8 +1814,7 @@
                     <div class="report-content-card" style="grid-template-columns: 1fr; gap: 20px;">
                         <div class="report-card-content" style="padding: 30px;">
                             <h3 style="font-size: 24px; color: #1e3a5f; margin-bottom: 15px;">Measuring Environmental Deprivation</h3>
-                            <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">Our environmental deprivation index (EDI) measured greenspace quality at each graveyard. It used our carbon estimates (normalised to a 0-1 range with 1 indicating high carbon per hectare), LiDAR's tree height and canopy cover
-                                values, and NDVI (vegetation health) data from the Sentinel-2 satellite. Like this:</p>
+                            <p style="font-size: 16px; line-height: 1.8; margin-bottom: 25px;">Our environmental deprivation index (EDI) measured greenspace quality at each graveyard. It used our carbon estimates (normalised to a 0-1 range with 1 indicating high carbon per hectare), LiDAR's tree height and canopy cover values, and NDVI (vegetation health) data from the Sentinel-2 satellite. Like this:</p>
                             <div style="text-align: center; margin-bottom: 25px;">
                                 <img src="/dev/group1project/static/report_images/image11.png" alt="EDI Formula" style="max-width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
                             </div>
@@ -1859,63 +1824,62 @@
                 </div>
             </div>
         </section>
-
+        
         <script>
-            function showMethodTab(tabNum) {
-                for (var i = 1; i <= 3; i++) {
-                    document.getElementById('method-content-' + i).style.display = 'none';
-                    var tab = document.getElementById('method-tab-' + i);
-                    tab.style.background = '#fff';
-                    tab.style.color = '#1e3a5f';
-                    tab.style.border = '2px solid #1e3a5f';
-                    tab.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
-                }
-                document.getElementById('method-content-' + tabNum).style.display = 'block';
-                var activeTab = document.getElementById('method-tab-' + tabNum);
-                activeTab.style.background = 'linear-gradient(135deg, #1e3a5f, #0891b2)';
-                activeTab.style.color = '#fff';
-                activeTab.style.border = 'none';
-                activeTab.style.boxShadow = '0 4px 15px rgba(30, 58, 95, 0.3)';
+        function showMethodTab(tabNum) {
+            for (var i = 1; i <= 3; i++) {
+                document.getElementById('method-content-' + i).style.display = 'none';
+                var tab = document.getElementById('method-tab-' + i);
+                tab.style.background = '#fff';
+                tab.style.color = '#1e3a5f';
+                tab.style.border = '2px solid #1e3a5f';
+                tab.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
             }
-
-            function switchFieldImage(src) {
-                document.getElementById('field-main-image').src = src;
-                // Update thumbnail borders
-                var thumbs = document.querySelectorAll('#method-content-1 [onclick*="switchFieldImage"]');
-                thumbs.forEach(function(thumb) {
-                    if (thumb.src === src) {
-                        thumb.style.border = '3px solid #1e3a5f';
-                    } else {
-                        thumb.style.border = '3px solid transparent';
-                    }
-                });
-            }
-
-            function flipCard(card) {
-                var inner = card.querySelector('.flip-card-inner');
-                if (inner.style.transform === 'rotateY(180deg)') {
-                    inner.style.transform = 'rotateY(0deg)';
+            document.getElementById('method-content-' + tabNum).style.display = 'block';
+            var activeTab = document.getElementById('method-tab-' + tabNum);
+            activeTab.style.background = 'linear-gradient(135deg, #1e3a5f, #0891b2)';
+            activeTab.style.color = '#fff';
+            activeTab.style.border = 'none';
+            activeTab.style.boxShadow = '0 4px 15px rgba(30, 58, 95, 0.3)';
+        }
+        
+        function switchFieldImage(src) {
+            document.getElementById('field-main-image').src = src;
+            // Update thumbnail borders
+            var thumbs = document.querySelectorAll('#method-content-1 [onclick*="switchFieldImage"]');
+            thumbs.forEach(function(thumb) {
+                if (thumb.src === src) {
+                    thumb.style.border = '3px solid #1e3a5f';
                 } else {
-                    inner.style.transform = 'rotateY(180deg)';
+                    thumb.style.border = '3px solid transparent';
                 }
+            });
+        }
+        
+        function flipCard(card) {
+            var inner = card.querySelector('.flip-card-inner');
+            if (inner.style.transform === 'rotateY(180deg)') {
+                inner.style.transform = 'rotateY(0deg)';
+            } else {
+                inner.style.transform = 'rotateY(180deg)';
             }
+        }
         </script>
 
         <!-- Results -->
         <section id="report-results" class="report-section" style="background: #fff;">
             <div class="report-container">
                 <h2 class="report-section-title"><span>Results</span></h2>
-
+                
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;">
                     <!-- Left: Image Carousel -->
                     <div>
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <!-- Left Arrow -->
-                            <button onclick="changeResultsSlide(-1)" style="background: rgba(45,106,79,0.1); border: 2px solid #2d6a4f; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; color: #2d6a4f; flex-shrink: 0; transition: all 0.3s;" onmouseover="this.style.background='#2d6a4f'; this.style.color='#fff'"
-                                onmouseout="this.style.background='rgba(45,106,79,0.1)'; this.style.color='#2d6a4f'">
+                            <button onclick="changeResultsSlide(-1)" style="background: rgba(45,106,79,0.1); border: 2px solid #2d6a4f; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; color: #2d6a4f; flex-shrink: 0; transition: all 0.3s;" onmouseover="this.style.background='#2d6a4f'; this.style.color='#fff'" onmouseout="this.style.background='rgba(45,106,79,0.1)'; this.style.color='#2d6a4f'">
                                 <i class="fas fa-chevron-left"></i>
                             </button>
-
+                            
                             <!-- Image Container -->
                             <div style="position: relative; flex: 1; overflow: hidden; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
                                 <!-- Page Counter Top-Left -->
@@ -1928,21 +1892,20 @@
                                 <img id="results-slide-4" src="/dev/group1project/static/report_images/image64.png" alt="EDI Rankings Table" style="width: 100%; display: none; cursor: pointer;" onclick="openImageModal(this.src)">
                                 <img id="results-slide-5" src="/dev/group1project/static/report_images/image15.png" alt="SIMD & EDI Map" style="width: 100%; display: none; cursor: pointer;" onclick="openImageModal(this.src)">
                             </div>
-
+                            
                             <!-- Right Arrow -->
-                            <button onclick="changeResultsSlide(1)" style="background: rgba(45,106,79,0.1); border: 2px solid #2d6a4f; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; color: #2d6a4f; flex-shrink: 0; transition: all 0.3s;" onmouseover="this.style.background='#2d6a4f'; this.style.color='#fff'"
-                                onmouseout="this.style.background='rgba(45,106,79,0.1)'; this.style.color='#2d6a4f'">
+                            <button onclick="changeResultsSlide(1)" style="background: rgba(45,106,79,0.1); border: 2px solid #2d6a4f; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 18px; color: #2d6a4f; flex-shrink: 0; transition: all 0.3s;" onmouseover="this.style.background='#2d6a4f'; this.style.color='#fff'" onmouseout="this.style.background='rgba(45,106,79,0.1)'; this.style.color='#2d6a4f'">
                                 <i class="fas fa-chevron-right"></i>
                             </button>
                         </div>
                         <p id="results-caption" style="text-align: left; font-size: 14px; color: #555; margin-top: 15px; font-style: italic;">Figure 1. Calibration model showing relationship between canopy height and carbon density.</p>
                     </div>
-
+                    
                     <!-- Right: Numbered Dropdown Headings -->
                     <div>
                         <p style="font-size: 12px; color: #2d6a4f; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; margin-bottom: 10px;">FINDINGS</p>
                         <h3 id="results-title" style="font-size: 28px; color: #2d3436; font-weight: 700; margin-bottom: 30px; line-height: 1.3;">Promising But With Problems</h3>
-
+                        
                         <!-- Item 1 -->
                         <div style="border-bottom: 1px solid #e0e0e0; padding: 15px 0;">
                             <button onclick="toggleResultsDropdown(1)" style="display: flex; align-items: center; gap: 15px; width: 100%; background: none; border: none; cursor: pointer; text-align: left;">
@@ -1950,11 +1913,12 @@
                                 <span id="results-title-1" style="font-size: 18px; font-weight: 700; color: #2d3436;">Carbon Calculations</span>
                             </button>
                             <div id="results-dropdown-1" style="display: none; padding: 15px 0 5px 47px; color: #555; font-size: 15px; line-height: 1.8;">
-                                Calibration and validation models show high bias and inaccuracy in our predicted and observed results.<br><br> Both models show weak positive relationships, with higher inaccuracy in the calibration model. We made mistakes
-                                during fieldwork, and when upscaling estimates. Doh!<br><br> Calibration model carbon estimates are often twice as high as in the validation model.
+                                Calibration and validation models show high bias and inaccuracy in our predicted and observed results.<br><br>
+                                Both models show weak positive relationships, with higher inaccuracy in the calibration model. We made mistakes during fieldwork, and when upscaling estimates. Doh!<br><br>
+                                Calibration model carbon estimates are often twice as high as in the validation model.
                             </div>
                         </div>
-
+                        
                         <!-- Item 2 -->
                         <div style="border-bottom: 1px solid #e0e0e0; padding: 15px 0;">
                             <button onclick="toggleResultsDropdown(2)" style="display: flex; align-items: center; gap: 15px; width: 100%; background: none; border: none; cursor: pointer; text-align: left;">
@@ -1965,7 +1929,7 @@
                                 Our five most environmentally-deprived cemeteries are: Ratho, St Triduana's, Currie, Kirkliston and Liberton.
                             </div>
                         </div>
-
+                        
                         <!-- Item 3 -->
                         <div style="padding: 15px 0;">
                             <button onclick="toggleResultsDropdown(3)" style="display: flex; align-items: center; gap: 15px; width: 100%; background: none; border: none; cursor: pointer; text-align: left;">
@@ -1980,59 +1944,56 @@
                 </div>
             </div>
         </section>
-
+        
         <script>
-            var currentResultsSlide = 1;
-            var resultsCaptions = [
-                'Figure 1. Calibration model results show weak positive relationship between tree canopy height and carbon density across all 35 graveyards.',
-                'Figure 2. Validation model using remaining field data shows another weak positive relationship.',
-                'Figure 3. Calibration (predicted) model carbon estimates were twice as high as the validation model\'s.',
-                'Figure 4. Revealed: our five most environmentally-deprived graveyards.',
-                'Figure 5. SIMD and EDI spatial analysis map of Edinburgh graveyards.'
-            ];
-
-            function changeResultsSlide(direction) {
-                document.getElementById('results-slide-' + currentResultsSlide).style.display = 'none';
-                currentResultsSlide += direction;
-                if (currentResultsSlide > 5) currentResultsSlide = 1;
-                if (currentResultsSlide < 1) currentResultsSlide = 5;
-                document.getElementById('results-slide-' + currentResultsSlide).style.display = 'block';
-                document.getElementById('results-slide-counter').textContent = currentResultsSlide;
-                document.getElementById('results-caption').textContent = resultsCaptions[currentResultsSlide - 1];
+        var currentResultsSlide = 1;
+        var resultsCaptions = [
+            'Figure 1. Calibration model results show weak positive relationship between tree canopy height and carbon density across all 35 graveyards.',
+            'Figure 2. Validation model using remaining field data shows another weak positive relationship.',
+            'Figure 3. Calibration (predicted) model carbon estimates were twice as high as the validation model\'s.',
+            'Figure 4. Revealed: our five most environmentally-deprived graveyards.',
+            'Figure 5. SIMD and EDI spatial analysis map of Edinburgh graveyards.'
+        ];
+        function changeResultsSlide(direction) {
+            document.getElementById('results-slide-' + currentResultsSlide).style.display = 'none';
+            currentResultsSlide += direction;
+            if (currentResultsSlide > 5) currentResultsSlide = 1;
+            if (currentResultsSlide < 1) currentResultsSlide = 5;
+            document.getElementById('results-slide-' + currentResultsSlide).style.display = 'block';
+            document.getElementById('results-slide-counter').textContent = currentResultsSlide;
+            document.getElementById('results-caption').textContent = resultsCaptions[currentResultsSlide - 1];
+        }
+        function toggleResultsDropdown(num) {
+            var content = document.getElementById('results-dropdown-' + num);
+            var numSpan = document.getElementById('results-num-' + num);
+            var titleSpan = document.getElementById('results-title-' + num);
+            var isOpen = content.style.display !== 'none';
+            content.style.display = isOpen ? 'none' : 'block';
+            if (isOpen) {
+                numSpan.style.background = 'transparent';
+                numSpan.style.color = '#666';
+                numSpan.style.border = '2px solid #ccc';
+                titleSpan.style.color = '#2d3436';
+            } else {
+                numSpan.style.background = '#2d6a4f';
+                numSpan.style.color = '#fff';
+                numSpan.style.border = '2px solid #2d6a4f';
+                titleSpan.style.color = '#34C759';
             }
-
-            function toggleResultsDropdown(num) {
-                var content = document.getElementById('results-dropdown-' + num);
-                var numSpan = document.getElementById('results-num-' + num);
-                var titleSpan = document.getElementById('results-title-' + num);
-                var isOpen = content.style.display !== 'none';
-                content.style.display = isOpen ? 'none' : 'block';
-                if (isOpen) {
-                    numSpan.style.background = 'transparent';
-                    numSpan.style.color = '#666';
-                    numSpan.style.border = '2px solid #ccc';
-                    titleSpan.style.color = '#2d3436';
-                } else {
-                    numSpan.style.background = '#2d6a4f';
-                    numSpan.style.color = '#fff';
-                    numSpan.style.border = '2px solid #2d6a4f';
-                    titleSpan.style.color = '#34C759';
-                }
-            }
+        }
         </script>
 
         <!-- Explore Data Button -->
         <section style="background: linear-gradient(135deg, #1e3a5f, #0891b2); padding: 60px 20px; text-align: center;">
             <h3 style="color: #fff; font-size: 28px; margin-bottom: 20px; font-weight: 600;">Want to explore the data yourself?</h3>
-            <a href="#" onclick="switchPage('map'); return false;" style="display: inline-block; color: #fff; text-decoration: none; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 18px 40px; border: 3px solid #fff; border-radius: 50px; transition: all 0.3s;"
-                onmouseover="this.style.background='#fff'; this.style.color='#1e3a5f'" onmouseout="this.style.background='transparent'; this.style.color='#fff'">CLICK HERE FOR OUR INTERACTIVE MAP</a>
+            <a href="#" onclick="switchPage('map'); return false;" style="display: inline-block; color: #fff; text-decoration: none; font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 18px 40px; border: 3px solid #fff; border-radius: 50px; transition: all 0.3s;" onmouseover="this.style.background='#fff'; this.style.color='#1e3a5f'" onmouseout="this.style.background='transparent'; this.style.color='#fff'">CLICK HERE FOR OUR INTERACTIVE MAP</a>
         </section>
 
         <!-- Conclusions -->
         <section id="report-conclusions" class="report-section" style="background: #f1f3f5;">
             <div class="report-container">
                 <h2 class="report-section-title"><span>Conclusions</span></h2>
-
+                
                 <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; align-items: start;">
                     <!-- Left: Tabs and Content -->
                     <div>
@@ -2048,7 +2009,7 @@
                                 <i class="fas fa-exclamation-circle" style="margin-right: 10px;"></i> Limitations & Challenges
                             </button>
                         </div>
-
+                        
                         <!-- Content Areas -->
                         <div id="conclusion-content-1" style="display: block;">
                             <h4 style="font-size: 20px; color: #2d3436; margin-bottom: 20px; font-weight: 600;">Conclusions</h4>
@@ -2062,10 +2023,8 @@
                             <h4 style="font-size: 20px; color: #2d3436; margin-bottom: 20px; font-weight: 600;">Recommendations</h4>
                             <ul style="list-style: disc; padding-left: 20px; margin: 0;">
                                 <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Invest where there will be the greatest impact</strong><br>Using SIMD, prioritise greenspace funding in social deprivation hotspots to maximise climate, biodiversity and social-equity gains.</li>
-                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Enhance EDI</strong><br>Further improvements should be made to our EDI measure to include local access to greenspace and health-supporting ecosystem services. This will better reflect greenspaces like graveyards'
-                                    many roles.</li>
-                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8;"><strong>Combine multiple datasets for better decisions</strong><br>Tackling social and environmental deprivation takes more than just one measure. Combining social datasets like SIMD with environmental ones is an effective,
-                                    long-term way to guide where to send greenspace funds.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8; margin-bottom: 15px;"><strong>Enhance EDI</strong><br>Further improvements should be made to our EDI measure to include local access to greenspace and health-supporting ecosystem services. This will better reflect greenspaces like graveyards' many roles.</li>
+                                <li style="font-size: 15px; color: #2d3436; line-height: 1.8;"><strong>Combine multiple datasets for better decisions</strong><br>Tackling social and environmental deprivation takes more than just one measure. Combining social datasets like SIMD with environmental ones is an effective, long-term way to guide where to send greenspace funds.</li>
                             </ul>
                         </div>
                         <div id="conclusion-content-3" style="display: none;">
@@ -2077,7 +2036,7 @@
                             </ul>
                         </div>
                     </div>
-
+                    
                     <!-- Right: Map Image (right half of image14) -->
                     <div style="overflow: hidden; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
                         <img src="/dev/group1project/static/report_images/image14.png" alt="Edinburgh Map" style="width: 100%; height: auto; display: block; cursor: pointer;" onclick="openImageModal(this.src)">
@@ -2086,24 +2045,24 @@
                 </div>
             </div>
         </section>
-
+        
         <script>
-            function showConclusionTab(tabNum) {
-                // Hide all content
-                for (var i = 1; i <= 3; i++) {
-                    document.getElementById('conclusion-content-' + i).style.display = 'none';
-                    var tab = document.getElementById('conclusion-tab-' + i);
-                    tab.style.color = '#636e72';
-                    tab.style.fontWeight = '400';
-                    tab.querySelector('i').style.color = '#636e72';
-                }
-                // Show selected content
-                document.getElementById('conclusion-content-' + tabNum).style.display = 'block';
-                var activeTab = document.getElementById('conclusion-tab-' + tabNum);
-                activeTab.style.color = '#2d6a4f';
-                activeTab.style.fontWeight = '600';
-                activeTab.querySelector('i').style.color = '#2d6a4f';
+        function showConclusionTab(tabNum) {
+            // Hide all content
+            for (var i = 1; i <= 3; i++) {
+                document.getElementById('conclusion-content-' + i).style.display = 'none';
+                var tab = document.getElementById('conclusion-tab-' + i);
+                tab.style.color = '#636e72';
+                tab.style.fontWeight = '400';
+                tab.querySelector('i').style.color = '#636e72';
             }
+            // Show selected content
+            document.getElementById('conclusion-content-' + tabNum).style.display = 'block';
+            var activeTab = document.getElementById('conclusion-tab-' + tabNum);
+            activeTab.style.color = '#2d6a4f';
+            activeTab.style.fontWeight = '600';
+            activeTab.querySelector('i').style.color = '#2d6a4f';
+        }
         </script>
 
         <!-- Sources -->
@@ -2131,8 +2090,7 @@
                         <h4 style="color: #2d3436; margin-bottom: 15px; font-size: 18px;"><i class="fas fa-tree" style="color: #10b981; margin-right: 10px;"></i>Ground Data</h4>
                         <ul style="color: #636e72; line-height: 1.8;">
                             <li><strong>Field Measurements:</strong> Conducted 5-8 November 2025</li>
-                            <li><strong>Allometric Equations:</strong> <a href="https://doi.org/10.1016/j.foreco.2017.01.022" target="_blank" style="color: #0891b2;">Forrester et al. (2017)</a>; <a href="https://www.ipcc-nggip.iges.or.jp/public/gpglulucf/gpglulucf.html"
-                                    target="_blank" style="color: #0891b2;">IPCC (2003)</a></li>
+                            <li><strong>Allometric Equations:</strong> <a href="https://www.sciencedirect.com/science/article/pii/S0378112717301238" target="_blank" style="color: #0891b2;">Forrester et al. (2017)</a>; <a href="https://www.ipcc-nggip.iges.or.jp/public/gpglulucf/gpglulucf.html" target="_blank" style="color: #0891b2;">IPCC (2003)</a></li>
                         </ul>
                     </div>
                     <div style="background: #f8f9fa; border-radius: 12px; padding: 30px;">
@@ -2141,21 +2099,17 @@
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Anselin, L., 1995. Local indicators of spatial association - LISA. <em>Geographical Analysis</em>, 27(2): 93-115.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Brede, B., Lau, A., Bartholomeus, H.M. and Kooistra, L., 2017. Comparing RIEGL RiCOPTER UAV LiDAR derived canopy height and DBH with terrestrial LiDAR. <em>Sensors</em>, 17(10): 2371.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Broadmeadow, M. and Matthews, R., 2003. Forests, carbon and climate change: the UK contribution.</li>
-                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Calders, K., Armston, J., Newnham, G., Herold, M. and Goodwin, N., 2014. Implications of sensor configuration and topography on vertical plant profiles derived from terrestrial LiDAR. <em>Agricultural and Forest Meteorology</em>,
-                                194: 104-117.</li>
-                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Calders, K., Newnham, G., Burt, A., Murphy, S., Raumonen, P., Herold, M., Culvenor, D., Avitabile, V., Disney, M., Armston, J. and Kaasalainen, M., 2015. Nondestructive estimates of above-ground biomass using terrestrial laser
-                                scanning. <em>Methods in Ecology and Evolution</em>, 6(2): 198-208.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Calders, K., Armston, J., Newnham, G., Herold, M. and Goodwin, N., 2014. Implications of sensor configuration and topography on vertical plant profiles derived from terrestrial LiDAR. <em>Agricultural and Forest Meteorology</em>, 194: 104-117.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Calders, K., Newnham, G., Burt, A., Murphy, S., Raumonen, P., Herold, M., Culvenor, D., Avitabile, V., Disney, M., Armston, J. and Kaasalainen, M., 2015. Nondestructive estimates of above-ground biomass using terrestrial laser scanning. <em>Methods in Ecology and Evolution</em>, 6(2): 198-208.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Calders, K., Adams, J., Armston, J., et al., 2020. Terrestrial laser scanning in forest ecology: Expanding the horizon. <em>Remote Sensing of Environment</em>, 251: 112102.</li>
-                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Chen, G., Singh, K.K., Lopez, J. and Zhou, Y., 2020. Tree canopy cover and carbon density are different proxy indicators for assessing the relationship between forest structure and urban socio-ecological conditions. <em>Ecological Indicators</em>,
-                                113: 106279.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Chen, G., Singh, K.K., Lopez, J. and Zhou, Y., 2020. Tree canopy cover and carbon density are different proxy indicators for assessing the relationship between forest structure and urban socio-ecological conditions. <em>Ecological Indicators</em>, 113: 106279.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC), 2021. 2030 Climate Strategy: Delivering a net zero, climate ready Edinburgh.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC), 2023. Culture and Communities Committee: Edinburgh Cemetery Tour Registration Scheme - Update.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC), 2024. City Plan 2030: Written Statement.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC) Forestry Service, 2023. Trees in the City.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">City of Edinburgh Council (CEC), 2014. Trees in the City: Trees and Woodlands Action Plan.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Davies, Z., Edmondson, J., Heinemeyer, A., Leake, J. and Gaston, K., 2011. Mapping an urban ecosystem service: quantifying above-ground carbon storage at a city-wide scale. <em>Journal of Applied Ecology</em>, 48(5): 1125-1134.</li>
-                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Disney, M., Burt, A., Calders, K., Schaaf, C. and Stovall, A., 2019. Innovations in ground and airborne technologies as reference and for training and validation: terrestrial laser scanning (TLS). <em>Surveys in Geophysics</em>,
-                                40(4): 937-958.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Disney, M., Burt, A., Calders, K., Schaaf, C. and Stovall, A., 2019. Innovations in ground and airborne technologies as reference and for training and validation: terrestrial laser scanning (TLS). <em>Surveys in Geophysics</em>, 40(4): 937-958.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Doick, K., Handley, P., Ashwood, F., et al., 2017. Valuing Edinburgh's Urban Trees: An update to the 2011 i-Tree Eco survey. Forest Research: Farnham.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Forrester, D., Tachauer, I., Annighoefer, P., et al., 2017. Generalized biomass and leaf area allometric equations for European tree species. <em>Forest Ecology and Management</em>, 396: 160-175.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Ganz, S., Kaeber, Y. and Adler, P., 2019. Measuring Tree Height with Remote Sensing - A Comparison of Photogrammetric and LiDAR Data with Different Field Measurements. <em>Forests</em>, 10(8): 694.</li>
@@ -2166,19 +2120,15 @@
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Mildrexler, D.J., Berner, L.T., Law, B.E., Birdsey, R.A. and Moomaw, W.R., 2020. Large Trees Dominate Carbon Storage in Forests East of the Cascade Crest. <em>Frontiers in Forests and Global Change</em>, 3.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Muukkonen, P., 2007. Generalized allometric volume and biomass equations for some tree species in Europe. <em>European Journal of Forest Research</em>, 126: 157-166.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">NBN Atlas Scotland, 2018. Search for records | NBN Atlas Scotland.</li>
-                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Pearce, J., Richardson, E., Mitchell, R. and Shortt, N., 2010. Environmental justice and health: the implications of the socio-spatial distribution of multiple environmental deprivation. <em>Transactions of the Institute of British Geographers</em>,
-                                35(4): 522-539.</li>
-                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Pearce, J., Richardson, E., Mitchell, R. and Shortt, N., 2011. Environmental justice and health: A study of multiple environmental deprivation and geographical inequalities in health in New Zealand. <em>Social Science and Medicine</em>,
-                                73(3): 410-420.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Pearce, J., Richardson, E., Mitchell, R. and Shortt, N., 2010. Environmental justice and health: the implications of the socio-spatial distribution of multiple environmental deprivation. <em>Transactions of the Institute of British Geographers</em>, 35(4): 522-539.</li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Pearce, J., Richardson, E., Mitchell, R. and Shortt, N., 2011. Environmental justice and health: A study of multiple environmental deprivation and geographical inequalities in health in New Zealand. <em>Social Science and Medicine</em>, 73(3): 410-420.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Takagi, K., Yone, Y., Takahashi, H., et al., 2015. Forest biomass and volume estimation using airborne LiDAR in a cool-temperate forest of northern Hokkaido, Japan. <em>Ecological Informatics</em>, 26: 54-60.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Tobler, W.R., 1970. A computer movie simulating urban growth in the Detroit region. <em>Economic Geography</em>, 46(1): 234-240.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Tucker, C., 1979. Red and photographic infrared linear combination for monitoring green vegetation. <em>Remote Sensing of Environment</em>, 8: 127-150.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">UK Civil Aviation Authority (CAA), 2024. The Drone and Model Aircraft Code.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">UNESCO, 2011. Old and New Towns of Edinburgh.</li>
                             <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Wilkes, P., Disney, M., Vicari, M., Calders, K. and Burt, A., 2018. Estimating urban above ground biomass with multi-scale LiDAR. <em>Carbon Balance and Management</em>, 13: 10.</li>
-                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Zhang, J., de Gier, A., Xing, Y. and Sohn, G., 2011. Full waveform-based analysis for forest type information derivation from large footprint spaceborne lidar data. <em>Photogrammetric Engineering and Remote Sensing</em>, 77(3):
-                                281-290.
-                            </li>
+                            <li style="margin-bottom: 10px; text-indent: -20px; padding-left: 20px;">Zhang, J., de Gier, A., Xing, Y. and Sohn, G., 2011. Full waveform-based analysis for forest type information derivation from large footprint spaceborne lidar data. <em>Photogrammetric Engineering and Remote Sensing</em>, 77(3): 281-290.</li>
                         </ul>
                     </div>
                 </div>
@@ -2601,33 +2551,21 @@
                 if ((p.ReportTags || []).some(t => t.includes('Highest'))) specialClass = 'highest-edi';
 
                 el.className = `list-item ${specialClass}`;
-
+                
                 // Get centroid coordinates for distance calculation
                 var coords = f.geometry.coordinates;
-                var centLat = 0,
-                    centLon = 0;
+                var centLat = 0, centLon = 0;
                 if (f.geometry.type === 'Polygon') {
-                    coords[0].forEach(c => {
-                        centLon += c[0];
-                        centLat += c[1];
-                    });
-                    centLon /= coords[0].length;
-                    centLat /= coords[0].length;
+                    coords[0].forEach(c => { centLon += c[0]; centLat += c[1]; });
+                    centLon /= coords[0].length; centLat /= coords[0].length;
                 } else if (f.geometry.type === 'MultiPolygon') {
                     var total = 0;
-                    coords.forEach(poly => {
-                        poly[0].forEach(c => {
-                            centLon += c[0];
-                            centLat += c[1];
-                            total++;
-                        });
-                    });
-                    centLon /= total;
-                    centLat /= total;
+                    coords.forEach(poly => { poly[0].forEach(c => { centLon += c[0]; centLat += c[1]; total++; }); });
+                    centLon /= total; centLat /= total;
                 }
                 el.setAttribute('data-lat', centLat);
                 el.setAttribute('data-lon', centLon);
-
+                
                 el.innerHTML = `
                 <div class="item-header">
                     <span>${p.name}</span>
@@ -2688,7 +2626,7 @@
 
         function fetchFlickrImage(searchTerm, imgElement, imgContainer) {
             var flickrUrl = `https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=${FLICKR_API_KEY}&text=${encodeURIComponent(searchTerm + ' Edinburgh')}&sort=relevance&per_page=1&format=json&nojsoncallback=1`;
-
+            
             fetch(flickrUrl)
                 .then(r => r.json())
                 .then(data => {
@@ -2714,7 +2652,7 @@
             var maxInput = document.getElementById('carbon-max');
             var minVal = parseInt(minInput.value);
             var maxVal = parseInt(maxInput.value);
-
+            
             // Prevent crossing
             if (minVal > maxVal) {
                 minInput.value = maxVal;
@@ -2724,14 +2662,13 @@
                 maxInput.value = minVal;
                 maxVal = minVal;
             }
-
+            
             // Update labels
             document.getElementById('carbon-min-label').textContent = minVal;
             document.getElementById('carbon-max-label').textContent = maxVal;
-
+            
             // Update range highlight
-            var min = 38,
-                max = 340;
+            var min = 38, max = 340;
             var leftPercent = ((minVal - min) / (max - min)) * 100;
             var rightPercent = 100 - ((maxVal - min) / (max - min)) * 100;
             var sliderRange = document.getElementById('slider-range');
@@ -2740,7 +2677,7 @@
                 sliderRange.style.right = rightPercent + '%';
             }
         }
-
+        
         // Alias for compatibility
         function updateSliderLabels() {
             updateDualSlider();
@@ -2763,10 +2700,7 @@
                 var name = p.name;
 
                 if (carbon >= carbonMin && carbon <= carbonMax) {
-                    layer.setStyle({
-                        opacity: 1,
-                        fillOpacity: 0.5
-                    });
+                    layer.setStyle({ opacity: 1, fillOpacity: 0.5 });
                     if (layer.getElement()) layer.getElement().style.display = '';
                     if (window.numberMarkers && window.numberMarkers[name]) {
                         window.numberMarkers[name].getElement().style.display = '';
@@ -2774,10 +2708,7 @@
                     filteredCount++;
                     filteredNames.push(name);
                 } else {
-                    layer.setStyle({
-                        opacity: 0,
-                        fillOpacity: 0
-                    });
+                    layer.setStyle({ opacity: 0, fillOpacity: 0 });
                     if (layer.getElement()) layer.getElement().style.display = 'none';
                     if (window.numberMarkers && window.numberMarkers[name]) {
                         window.numberMarkers[name].getElement().style.display = 'none';
@@ -2806,10 +2737,7 @@
             filteredNames = null;
 
             geojsonLayer.eachLayer(function(layer) {
-                layer.setStyle({
-                    opacity: 1,
-                    fillOpacity: 0.5
-                });
+                layer.setStyle({ opacity: 1, fillOpacity: 0.5 });
                 if (layer.getElement()) layer.getElement().style.display = '';
                 var name = layer.feature.properties.name;
                 if (window.numberMarkers && window.numberMarkers[name]) {
@@ -2833,9 +2761,7 @@
                 return;
             }
             const dataStr = JSON.stringify(rawData, null, 2);
-            const dataBlob = new Blob([dataStr], {
-                type: 'application/json'
-            });
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
@@ -2852,10 +2778,10 @@
             var R = 6371;
             var dLat = (lat2 - lat1) * Math.PI / 180;
             var dLon = (lon2 - lon1) * Math.PI / 180;
-            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
         }
 
@@ -2869,13 +2795,13 @@
         function filterList() {
             var searchTerm = document.getElementById('search-input').value.trim();
             var items = document.querySelectorAll('.list-item');
-
+            
             // Check if it's a UK postcode
             if (isUKPostcode(searchTerm)) {
                 searchByPostcode(searchTerm);
                 return;
             }
-
+            
             // Normal text search
             var lowerSearch = searchTerm.toLowerCase();
             items.forEach(item => {
@@ -2893,7 +2819,7 @@
             var items = document.querySelectorAll('.list-item');
             var searchInput = document.getElementById('search-input');
             searchInput.style.background = 'rgba(14, 165, 233, 0.3)';
-
+            
             fetch('https://api.postcodes.io/postcodes/' + encodeURIComponent(postcode.replace(/\s/g, '')))
                 .then(response => response.json())
                 .then(data => {
@@ -2901,7 +2827,7 @@
                         var lat = data.result.latitude;
                         var lon = data.result.longitude;
                         var count = 0;
-
+                        
                         items.forEach(item => {
                             var itemLat = parseFloat(item.getAttribute('data-lat'));
                             var itemLon = parseFloat(item.getAttribute('data-lon'));
@@ -2916,10 +2842,10 @@
                                 }
                             }
                         });
-
+                        
                         searchInput.style.background = 'rgba(16, 185, 129, 0.3)';
                         searchInput.placeholder = count + ' graveyards within 5km';
-
+                        
                         // Center map on postcode location
                         if (map) {
                             map.setView([lat, lon], 13);
@@ -2944,9 +2870,7 @@
                 .catch(err => {
                     console.error('Postcode lookup error:', err);
                     searchInput.style.background = 'rgba(239, 68, 68, 0.3)';
-                    setTimeout(() => {
-                        searchInput.style.background = '';
-                    }, 2000);
+                    setTimeout(() => { searchInput.style.background = ''; }, 2000);
                 });
         }
 
